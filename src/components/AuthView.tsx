@@ -1,0 +1,418 @@
+import React, { useState } from 'react';
+import { supabase } from '../services/supabaseClient';
+import { fetchUserProfileFromDB, updateUserProfileInDB } from '../services/supabaseService';
+import { UserProfileInfo } from '../types/music';
+import { Radio, ShieldAlert, Sparkles, Disc, Music, Headphones, Zap } from 'lucide-react';
+import { GrooveLogo } from './GrooveLogo';
+
+interface AuthViewProps {
+  onAuthSuccess: (userProfile: UserProfileInfo, token: string) => void;
+  isDarkMode: boolean;
+  onContinueAsGuest?: () => void;
+}
+
+export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, onContinueAsGuest }) => {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Form Fields
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [country, setCountry] = useState('');
+  const [age, setAge] = useState<string>('24');
+  const [gender, setGender] = useState<string>('Prefer not to say');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      if (mode === 'login') {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        if (data.session && data.user) {
+          const profile = await fetchUserProfileFromDB(data.user.id, data.user.email || email);
+          onAuthSuccess(profile, data.session.access_token);
+        }
+      } else {
+        // SIGN UP MODE
+        const ageNum = parseInt(age) || 24;
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name,
+              country,
+              age: ageNum,
+              gender
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.user) {
+          const profile: UserProfileInfo = {
+            id: data.user.id,
+            name: name || email.split('@')[0],
+            email,
+            country: country || '',
+            lastFmUsername: '',
+            age: ageNum,
+            gender: gender || 'Prefer not to say',
+            topGenres: [],
+            topArtists: [],
+            isLastFmSynced: false
+          };
+
+          await updateUserProfileInDB(data.user.id, profile);
+          const token = data.session?.access_token || '';
+          onAuthSuccess(profile, token);
+        }
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Authentication failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className={isDarkMode ? '' : 'light-mode'} style={{
+      minHeight: '100vh',
+      backgroundColor: 'var(--bg-primary)',
+      color: 'var(--text-main)',
+      display: 'flex',
+      alignItems: 'stretch',
+      justifyContent: 'center',
+      boxSizing: 'border-box'
+    }}>
+      {/* Full Grid Container split 50/50 */}
+      <div className="auth-view-grid" style={{
+        width: '100%',
+        minHeight: '100vh',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+      }}>
+        {/* Left Half: Site Accent Lime Green with Subtle Decorative Components */}
+        <div className="auth-view-showcase" style={{
+          backgroundColor: 'var(--accent-lime)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Subtle Background Geometric Accents */}
+          <div style={{
+            position: 'absolute',
+            top: '-50px',
+            left: '-50px',
+            width: '200px',
+            height: '200px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(0,0,0,0.06)',
+            pointerEvents: 'none'
+          }} />
+          <div style={{
+            position: 'absolute',
+            bottom: '-80px',
+            right: '-80px',
+            width: '300px',
+            height: '300px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(0,0,0,0.06)',
+            pointerEvents: 'none'
+          }} />
+
+          {/* High Contrast Logo Card */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1.25rem',
+            backgroundColor: '#0D0E12',
+            padding: '1.25rem 2.5rem',
+            border: '3px solid #000000',
+            boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+            borderRadius: '4px',
+            marginBottom: '2.5rem',
+            zIndex: 2
+          }}>
+            <Radio size={44} style={{ color: 'var(--accent-lime)' }} />
+            <h1 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '3.2rem',
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: '-0.02em',
+              color: '#FFFFFF',
+              margin: 0
+            }}>
+              GROOVE<span style={{ color: 'var(--accent-lime)' }}>4U</span>
+            </h1>
+          </div>
+
+          {/* Subtle Aesthetics: Spinning Vinyl Graphic, Equalizer & Brand Badge */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '2rem',
+            zIndex: 2,
+            marginTop: '1rem'
+          }}>
+            {/* Spinning Tactile Vinyl Disk Icon */}
+            <div style={{
+              position: 'relative',
+              width: '120px',
+              height: '120px',
+              borderRadius: '50%',
+              backgroundColor: '#0D0E12',
+              border: '4px solid #000000',
+              boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto'
+            }}>
+              <Disc size={64} className="spinning-vinyl" style={{ color: 'var(--accent-lime)' }} />
+              <div style={{
+                position: 'absolute',
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-lime)',
+                border: '2px solid #000000'
+              }} />
+            </div>
+
+            {/* Subtle Animated Audio Equalizer Visualizer */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              gap: '6px',
+              height: '32px',
+              padding: '0.5rem 1.5rem',
+              backgroundColor: 'rgba(0,0,0,0.1)',
+              borderRadius: '20px',
+              border: '2px solid rgba(0,0,0,0.2)'
+            }}>
+              {[1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4].map((barGroup, idx) => (
+                <div
+                  key={idx}
+                  className={`eq-bar eq-bar-${barGroup}`}
+                  style={{
+                    width: '4px',
+                    backgroundColor: '#0D0E12',
+                    borderRadius: '2px',
+                    animationDelay: `${idx * 0.08}s`
+                  }}
+                />
+              ))}
+            </div>
+
+            </div>
+        </div>
+
+        {/* Right Half: Auth Form Card */}
+        <div className="auth-view-form-card" style={{
+          backgroundColor: 'var(--bg-primary)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem'
+        }}>
+          <div className="tactile-card" style={{
+            maxWidth: '460px',
+            width: '100%',
+            backgroundColor: 'var(--bg-secondary)',
+            border: '3px solid var(--border-color)',
+            boxShadow: '10px 10px 0px var(--accent-lime)',
+            padding: '2.5rem'
+          }}>
+            {/* Mode Switcher Tabs */}
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem' }}>
+              <button
+                type="button"
+                className={`btn-neo ${mode === 'login' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
+                style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
+                onClick={() => setMode('login')}
+              >
+                LOG IN
+              </button>
+              <button
+                type="button"
+                className={`btn-neo ${mode === 'signup' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
+                style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
+                onClick={() => setMode('signup')}
+              >
+                SIGN UP
+              </button>
+            </div>
+
+            {/* Error Notice */}
+            {errorMessage && (
+              <div style={{
+                backgroundColor: 'rgba(255, 0, 55, 0.15)',
+                border: '2px solid var(--accent-red)',
+                padding: '0.75rem 1rem',
+                marginBottom: '1.25rem',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.8rem',
+                color: 'var(--accent-red)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <ShieldAlert size={16} />
+                <div>{errorMessage}</div>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              {mode === 'signup' && (
+                <div>
+                  <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                    FULL NAME
+                  </label>
+                  <input
+                    type="text"
+                    className="input-neo"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Victoria Legrand"
+                    required
+                  />
+                </div>
+              )}
+
+              <div>
+                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                  EMAIL ADDRESS
+                </label>
+                <input
+                  type="email"
+                  className="input-neo"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="victoria.legrand@groove4u.app"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                  PASSWORD
+                </label>
+                <input
+                  type="password"
+                  className="input-neo"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  minLength={6}
+                  required
+                />
+              </div>
+
+              {mode === 'signup' && (
+                <>
+                  <div>
+                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                      COUNTRY
+                    </label>
+                    <input
+                      type="text"
+                      className="input-neo"
+                      value={country}
+                      onChange={e => setCountry(e.target.value)}
+                      placeholder="Pakistan"
+                      required
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                        AGE
+                      </label>
+                      <input
+                        type="number"
+                        min="13"
+                        max="120"
+                        className="input-neo"
+                        value={age}
+                        onChange={e => setAge(e.target.value)}
+                        placeholder="24"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                        GENDER
+                      </label>
+                      <select
+                        className="input-neo"
+                        value={gender}
+                        onChange={e => setGender(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <button
+                type="submit"
+                className="btn-neo btn-neo-lime"
+                style={{ padding: '0.9rem', fontSize: '1rem', justifyContent: 'center', marginTop: '0.5rem' }}
+                disabled={isLoading}
+              >
+                {isLoading ? 'AUTHENTICATING...' : (mode === 'login' ? 'LOG IN' : 'CREATE ACCOUNT')}
+              </button>
+            </form>
+          </div>
+
+          {/* Continue as Guest Button Placed Directly Under the Login Card */}
+          <div style={{ marginTop: '3.5rem', width: '100%', maxWidth: '460px', textAlign: 'center' }}>
+            <button
+              type="button"
+              className="btn-neo btn-neo-cyan"
+              onClick={onContinueAsGuest}
+              style={{
+                padding: '0.55rem 1.1rem',
+                fontSize: '0.825rem',
+                fontWeight: 700,
+                justifyContent: 'center',
+                display: 'inline-flex',
+                boxShadow: '0 4px 12px rgba(0, 229, 255, 0.25)',
+                gap: '0.4rem'
+              }}
+            >
+              <Headphones size={15} /> Continue as Guest
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

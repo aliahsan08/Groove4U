@@ -1,0 +1,741 @@
+/* Groove4U Design System - Modern Tactile Editorial */
+/* DEFAULT DARK MODE ENFORCED - NO GRADIENTS */
+
+:root {
+  /* Dark Mode Default Palette */
+  --bg-primary: #0D0E12;        /* Dark Charcoal Base */
+  --bg-secondary: #16181E;      /* Dark Surface Card */
+  --bg-card-hover: #20242D;     /* Hover Surface */
+  --bg-dark-accent: #282C37;    /* Secondary Dark Accent */
+  
+  --accent-lime: #76B900;       /* Vibrant Lime Green */
+  --accent-red: #FF3B30;        /* Crimson Tape Red */
+  --accent-yellow: #FFD600;     /* Signal Yellow */
+  --accent-cyan: #00A8E8;       /* Deep Electric Cyan */
+  --accent-blue: #2563EB;       /* Cobalt Blue */
+  
+  /* White Borders and White Shadows in Dark Mode */
+  --border-color: #FFFFFF;
+  --border-subtle: #3F4454;
+  --border-strong: #FFFFFF;
+  
+  --text-main: #F3F4F6;
+  --text-muted: #9CA3AF;
+  --text-inverse: #0D0E12;
+  
+  /* Hard Tactile White Shadows in Dark Mode */
+  --shadow-sm: 2px 2px 0px #FFFFFF;
+  --shadow-md: 4px 4px 0px #FFFFFF;
+  --shadow-lg: 6px 6px 0px #FFFFFF;
+  --shadow-lime: 4px 4px 0px #76B900;
+  --shadow-red: 4px 4px 0px #FF3B30;
+  
+  /* Fonts */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Light Mode Overrides */
+.light-mode {
+  --bg-primary: #F4F1EA;
+  --bg-secondary: #FFFFFF;
+  --bg-card-hover: #EFEBE4;
+  --bg-dark-accent: #E5E0D5;
+  
+  --accent-lime: #4D7C0F;       /* Darker green in Light Mode */
+  --accent-red: #DC2626;
+  --accent-yellow: #D97706;
+  --accent-cyan: #0284C7;
+  --accent-blue: #1D4ED8;
+  
+  /* Black Borders and Black Shadows in Light Mode */
+  --border-color: #141414;
+  --border-subtle: #D1D5DB;
+  --border-strong: #141414;
+  
+  --text-main: #141414;
+  --text-muted: #555555;
+  --text-inverse: #FFFFFF;
+  
+  --shadow-sm: 2px 2px 0px #141414;
+  --shadow-md: 4px 4px 0px #141414;
+  --shadow-lg: 6px 6px 0px #141414;
+  --shadow-lime: 4px 4px 0px #4D7C0F;
+  --shadow-red: 4px 4px 0px #DC2626;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+/* Top Flash Stripe Container (Solid Black Border in Dark & Light Mode) */
+.top-flash-stripe {
+  width: 100%;
+  height: 36px;
+  background-color: #000000;
+  border-bottom: 3px solid #000000 !important; /* Always Black Border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Centered Text - Single Text Element */
+.flash-stripe-text {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  z-index: 1; /* Under jaws */
+  position: relative;
+  animation: syncTextStompColor 15s linear infinite;
+}
+
+/* Solid Left Jaw Stripe Extending from Left Edge to Center (z-index: 10) */
+.flash-jaw-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  z-index: 10;
+  opacity: 1;
+  pointer-events: none;
+  animation: syncLeftJawStomp 15s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Solid Right Jaw Stripe Extending from Right Edge to Center (z-index: 10) */
+.flash-jaw-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0%;
+  z-index: 10;
+  opacity: 1;
+  pointer-events: none;
+  animation: syncRightJawStomp 15s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* 15s Left Jaw Stomp Animation - Fast initial speed, decelerating to meeting point in center at 50% width */
+@keyframes syncLeftJawStomp {
+  /* Pass 1: Lime Green (#76B900) */
+  0% { width: 0%; background-color: #76B900; }
+  6% { width: 50.5%; background-color: #76B900; }
+  7% { width: 50.5%; background-color: #76B900; }
+  13% { width: 0%; background-color: #76B900; }
+  19.99% { width: 0%; background-color: #76B900; }
+
+  /* Pass 2: Dark Emerald Green (#15803D) */
+  20% { width: 0%; background-color: #15803D; }
+  26% { width: 50.5%; background-color: #15803D; }
+  27% { width: 50.5%; background-color: #15803D; }
+  33% { width: 0%; background-color: #15803D; }
+  39.99% { width: 0%; background-color: #15803D; }
+
+  /* Pass 3: Bright Mint Green (#34D399) */
+  40% { width: 0%; background-color: #34D399; }
+  46% { width: 50.5%; background-color: #34D399; }
+  47% { width: 50.5%; background-color: #34D399; }
+  53% { width: 0%; background-color: #34D399; }
+  59.99% { width: 0%; background-color: #34D399; }
+
+  /* Pass 4: Forest Dark Green (#4D7C0F) */
+  60% { width: 0%; background-color: #4D7C0F; }
+  66% { width: 50.5%; background-color: #4D7C0F; }
+  67% { width: 50.5%; background-color: #4D7C0F; }
+  73% { width: 0%; background-color: #4D7C0F; }
+  79.99% { width: 0%; background-color: #4D7C0F; }
+
+  /* Pass 5: Pure Crisp White (#FFFFFF) */
+  80% { width: 0%; background-color: #FFFFFF; }
+  86% { width: 50.5%; background-color: #FFFFFF; }
+  87% { width: 50.5%; background-color: #FFFFFF; }
+  93% { width: 0%; background-color: #FFFFFF; }
+  100% { width: 0%; background-color: #FFFFFF; }
+}
+
+/* 15s Right Jaw Stomp Animation - Mirrors Left Jaw */
+@keyframes syncRightJawStomp {
+  /* Pass 1: Lime Green (#76B900) */
+  0% { width: 0%; background-color: #76B900; }
+  6% { width: 50.5%; background-color: #76B900; }
+  7% { width: 50.5%; background-color: #76B900; }
+  13% { width: 0%; background-color: #76B900; }
+  19.99% { width: 0%; background-color: #76B900; }
+
+  /* Pass 2: Dark Emerald Green (#15803D) */
+  20% { width: 0%; background-color: #15803D; }
+  26% { width: 50.5%; background-color: #15803D; }
+  27% { width: 50.5%; background-color: #15803D; }
+  33% { width: 0%; background-color: #15803D; }
+  39.99% { width: 0%; background-color: #15803D; }
+
+  /* Pass 3: Bright Mint Green (#34D399) */
+  40% { width: 0%; background-color: #34D399; }
+  46% { width: 50.5%; background-color: #34D399; }
+  47% { width: 50.5%; background-color: #34D399; }
+  53% { width: 0%; background-color: #34D399; }
+  59.99% { width: 0%; background-color: #34D399; }
+
+  /* Pass 4: Forest Dark Green (#4D7C0F) */
+  60% { width: 0%; background-color: #4D7C0F; }
+  66% { width: 50.5%; background-color: #4D7C0F; }
+  67% { width: 50.5%; background-color: #4D7C0F; }
+  73% { width: 0%; background-color: #4D7C0F; }
+  79.99% { width: 0%; background-color: #4D7C0F; }
+
+  /* Pass 5: Pure Crisp White (#FFFFFF) */
+  80% { width: 0%; background-color: #FFFFFF; }
+  86% { width: 50.5%; background-color: #FFFFFF; }
+  87% { width: 50.5%; background-color: #FFFFFF; }
+  93% { width: 0%; background-color: #FFFFFF; }
+  100% { width: 0%; background-color: #FFFFFF; }
+}
+
+/* 15s Text Color Stomp Sync - Text color changes INSTANTLY while covered by the two meeting jaws (between 6% and 7%), and opens up ALREADY IN NEW COLOR */
+@keyframes syncTextStompColor {
+  /* Pass 1: Holds White until covered at 6.5% -> switches to Lime Green (#76B900) */
+  0% { color: #FFFFFF; }
+  6.4% { color: #FFFFFF; }
+  6.5% { color: #76B900; }
+  26.4% { color: #76B900; }
+
+  /* Pass 2: Switches to Dark Emerald Green (#15803D) at 26.5% while covered */
+  26.5% { color: #15803D; }
+  46.4% { color: #15803D; }
+
+  /* Pass 3: Switches to Bright Mint Green (#34D399) at 46.5% while covered */
+  46.5% { color: #34D399; }
+  66.4% { color: #34D399; }
+
+  /* Pass 4: Switches to Forest Dark Green (#4D7C0F) at 66.5% while covered */
+  66.5% { color: #4D7C0F; }
+  86.4% { color: #4D7C0F; }
+
+  /* Pass 5: Switches to Pure Crisp White (#FFFFFF) at 86.5% while covered */
+  86.5% { color: #FFFFFF; }
+  100% { color: #FFFFFF; }
+}
+
+/* Base Tactile Card */
+.tactile-card {
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.tactile-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-lime);
+}
+
+/* Custom Buttons - CONSISTENT WHITE TEXT ON SOLID COLORS */
+.btn-neo {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.65rem 1.2rem;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.1s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn-neo-lime {
+  background-color: var(--accent-lime);
+  color: #ffffff !important;
+  box-shadow: var(--shadow-md);
+}
+.btn-neo-lime:hover {
+  filter: brightness(0.9);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-neo-red {
+  background-color: var(--accent-red);
+  color: #ffffff !important;
+  box-shadow: var(--shadow-md);
+}
+.btn-neo-red:hover {
+  filter: brightness(0.9);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-neo-cyan {
+  background-color: var(--accent-cyan);
+  color: #ffffff !important;
+  box-shadow: var(--shadow-md);
+}
+.btn-neo-cyan:hover {
+  filter: brightness(0.9);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-neo-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+}
+.btn-neo-secondary:hover {
+  background-color: var(--bg-card-hover);
+  border-color: var(--accent-lime);
+}
+
+/* Theme Toggle Button - Fixed Constant Size & Fixed Icon Slot */
+.btn-theme-toggle {
+  width: 155px;
+  height: 38px;
+  display: grid !important;
+  grid-template-columns: 24px 1fr !important;
+  align-items: center;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  padding: 0 0.75rem !important;
+}
+
+/* Badges - CONSISTENT WHITE TEXT ON COLORED BADGES */
+.badge-neo {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.badge-lime {
+  background-color: var(--accent-lime);
+  color: #ffffff !important;
+}
+
+.badge-red {
+  background-color: var(--accent-red);
+  color: #ffffff !important;
+}
+
+.badge-yellow {
+  background-color: var(--accent-yellow);
+  color: #000000;
+}
+
+.badge-cyan {
+  background-color: var(--accent-cyan);
+  color: #ffffff !important;
+}
+
+.badge-dark {
+  background-color: #000000;
+  color: #FFFFFF;
+  border-color: var(--border-color);
+}
+
+/* Form Inputs */
+.input-neo {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  outline: none;
+}
+.input-neo:focus {
+  border-color: var(--accent-lime);
+  box-shadow: var(--shadow-md);
+}
+
+/* Grid Layouts */
+.editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Header & Tabs */
+.main-header {
+  background-color: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-tab-btn {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  padding: 0.8rem 1.25rem;
+  border: none;
+  border-right: 2px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.nav-tab-btn:hover {
+  color: var(--text-main);
+  background-color: var(--bg-card-hover);
+}
+
+.nav-tab-btn.active {
+  background-color: var(--accent-lime);
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+/* Star/Numeric Rating Pill Switcher */
+.rating-pill {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.rating-pill:hover,
+.rating-pill.selected {
+  background-color: var(--accent-lime);
+  color: #ffffff !important;
+  border-color: var(--accent-lime);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================
+   DYNAMIC MODERN ANIMATIONS & MICRO-INTERACTIONS
+   ========================================== */
+
+/* 1. Dynamic Tactile Card Hover & Lift */
+.tactile-card {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease !important;
+}
+.tactile-card:hover {
+  transform: translateY(-4px) scale(1.008);
+  box-shadow: var(--shadow-lime) !important;
+  border-color: var(--accent-lime) !important;
+}
+
+/* 2. Micro-bounce on Buttons */
+.btn-neo {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease !important;
+}
+.btn-neo:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md) !important;
+}
+.btn-neo:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Sub-Tabs Navigation Buttons - Clean Modern Play Preview Style */
+.sub-tab-btn {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.6rem 1.15rem;
+  border: 2px solid var(--border-color) !important;
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm) !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  transition: all 0.15s ease !important;
+  user-select: none;
+}
+
+.sub-tab-btn:hover:not(.sub-tab-active) {
+  background-color: var(--bg-card-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+.sub-tab-btn.sub-tab-active {
+  background-color: var(--accent-lime) !important;
+  color: #000000 !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.light-mode .sub-tab-btn.sub-tab-active {
+  background-color: var(--accent-lime) !important;
+  color: #FFFFFF !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* 3. Sliding Marquee Keyframes for Track Player Bar */
+.marquee-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marqueeSlide 14s linear infinite;
+}
+
+@keyframes marqueeSlide {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.audio-player-bar:hover .marquee-content {
+  animation-play-state: paused;
+}
+
+/* Automatic Continuous Marquee for Track Titles & Artists */
+.auto-marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+}
+
+.auto-marquee-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: autoMarqueeSlide 10s linear infinite;
+}
+
+.auto-marquee-container:hover .auto-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes autoMarqueeSlide {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* 4. Equalizer Bouncing Soundwave Bars */
+.eq-bar {
+  width: 3px;
+  background-color: var(--accent-lime);
+  border-radius: 1px;
+}
+
+.eq-bar-1 { animation: eqBounce 0.7s ease-in-out infinite alternate; }
+.eq-bar-2 { animation: eqBounce 0.9s ease-in-out infinite alternate 0.2s; }
+.eq-bar-3 { animation: eqBounce 0.6s ease-in-out infinite alternate 0.4s; }
+.eq-bar-4 { animation: eqBounce 0.8s ease-in-out infinite alternate 0.1s; }
+
+@keyframes eqBounce {
+  0% { height: 3px; }
+  100% { height: 16px; }
+}
+
+/* 5. Spinning Vinyl Animation */
+.spinning-vinyl {
+  animation: spinVinyl 5s linear infinite;
+}
+
+@keyframes spinVinyl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 6. Pulse Lime Glow for Audio Player */
+@keyframes pulseLimeGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(118, 185, 0, 0.4), 6px 6px 0px #000000; }
+  50% { box-shadow: 0 0 25px rgba(118, 185, 0, 0.9), 6px 6px 0px #000000; }
+}
+
+.playing-glow {
+  animation: pulseLimeGlow 2.5s ease-in-out infinite;
+}
+
+/* 7. Tab Entrance Fade & Slide */
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-entrance {
+  animation: tabFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 8. Skeleton Shimmer Loader Animation */
+@keyframes skeletonShimmer {
+  0% { background-position: -300px 0; }
+  100% { background-position: 300px 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(118, 185, 0, 0.25) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 600px 100%;
+  animation: skeletonShimmer 1.4s infinite linear;
+  border-radius: 4px;
+}
+
+/* ==========================================
+   MOBILE & RESPONSIVE DESIGN ENHANCEMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+  /* Header 3-Column Grid to Stacked Layout */
+  .main-header-grid {
+    grid-template-columns: 1fr auto !important;
+    gap: 0.75rem !important;
+    padding: 0.6rem 1rem !important;
+  }
+
+  .main-header-nav {
+    grid-column: 1 / -1;
+    justify-self: stretch !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .nav-tab-btn {
+    padding: 0.65rem 0.85rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* AuthView 50/50 Split to Vertical Stack */
+  .auth-view-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .auth-view-showcase {
+    padding: 2.5rem 1.25rem !important;
+    min-height: auto !important;
+  }
+
+  .auth-view-form-card {
+    padding: 2rem 1.25rem !important;
+  }
+
+  /* Editorial & Recommendations Deck Grid for Mobile */
+  .editorial-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+
+  /* Touch Scroll for Chips & Sub-Tabs Bar */
+  .sub-tabs-container,
+  .scrollable-touch-row {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Horizontal Recommendation Cards on Small Mobile Screens */
+  .home-card-mobile {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .home-card-cover-wrapper {
+    height: 180px !important;
+  }
+
+  .audio-player-bar {
+    bottom: 12px !important;
+    right: 12px !important;
+    left: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  h1 { font-size: 1.6rem !important; }
+  h2 { font-size: 1.3rem !important; }
+  h3 { font-size: 1.15rem !important; }
+
+  .tactile-card {
+    padding: 1rem !important;
+  }
+
+  .btn-neo {
+    padding: 0.55rem 0.9rem !important;
+    font-size: 0.75rem !important;
+  }
+}
