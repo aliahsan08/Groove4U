@@ -1,35 +1,17 @@
-# Multi-stage Dockerfile for GROOVE4U Music Discovery Web Application
+# Dockerfile for GROOVE4U FastAPI Backend on Railway (Root Directory: /)
+FROM python:3.11-slim
 
-# Stage 1: Build React + Vite Frontend Production Bundle
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app
-
-# Copy package files and install dependencies (supports root & subdirectory context)
-COPY package.json* package-lock.json* ./
-RUN if [ -f package.json ]; then npm ci || npm install; else mkdir -p dist; fi
-
-# Copy project source code and run production build if package.json exists
-COPY . .
-RUN if [ -f package.json ]; then npm run build; else mkdir -p dist; fi
-
-# Stage 2: Python 3.11 FastAPI Backend Container
-FROM python:3.11-slim AS runner
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Copy requirements from root or backend directory using wildcard pattern
-COPY backend/requirements.txt* requirements.txt* ./backend_reqs/
-RUN if [ -f ./backend_reqs/requirements.txt ]; then pip install --no-cache-dir -r ./backend_reqs/requirements.txt; elif [ -f ./backend_reqs/backend/requirements.txt ]; then pip install --no-cache-dir -r ./backend_reqs/backend/requirements.txt; fi
+# Install Python dependencies
+COPY backend/requirements.txt ./backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Copy backend codebase cleanly regardless of build context root
-COPY . ./app_source
-RUN mkdir -p ./backend && \
-    if [ -d ./app_source/backend ]; then cp -r ./app_source/backend/* ./backend/; else cp -r ./app_source/* ./backend/; fi
-
-# Copy compiled frontend production bundle from build stage
-COPY --from=frontend-builder /app/dist ./backend/static
+# Copy backend codebase
+COPY backend ./backend
 
 EXPOSE 8000
 
