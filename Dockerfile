@@ -4,13 +4,12 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app
 
-# Install Node dependencies
+# Copy package files and install dependencies
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci || npm install
 
-# Copy source assets and run production build
-COPY index.html tsconfig.json vite.config.ts ./
-COPY src ./src
+# Copy all project source code and run production build
+COPY . .
 RUN npm run build
 
 # Stage 2: Python 3.11 FastAPI Backend Container
@@ -34,5 +33,5 @@ EXPOSE 8000
 
 WORKDIR /app/backend
 
-# Launch FastAPI web application server
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Launch FastAPI web application server (binds to $PORT provided by Railway)
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

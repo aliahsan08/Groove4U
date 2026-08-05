@@ -5,8 +5,10 @@ This module initializes the FastAPI service, configures CORS middleware for fron
 registers feature routers (Users, Tracks, Playlists, Taste Profile, Recommendations), and defines health checks.
 """
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.routers import users, tracks, playlists, taste_profile, recommendations
 
@@ -34,21 +36,26 @@ app.include_router(taste_profile.router)
 app.include_router(recommendations.router)
 
 
-@app.get("/", tags=["Health Check"])
-async def root_health_check() -> dict:
-    """
-    Root Health Check Endpoint.
+@app.get("/health", tags=["Health Check"])
+async def health_check() -> dict:
+    """Service Health Check Endpoint for Railway / Cloud monitoring."""
+    return {"status": "healthy", "service": "groove4u-backend"}
 
-    Returns:
-        dict: Status payload confirming backend service health and API documentation link.
-    """
-    return {
-        "status": "online",
-        "app": "Groove4U API",
-        "database": "Supabase PostgreSQL",
-        "auth": "Supabase Auth",
-        "docs_url": "/docs"
-    }
+
+# Mount static production React bundle if static directory exists
+static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+if os.path.exists(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
+else:
+    @app.get("/", tags=["Health Check"])
+    async def root_health_check() -> dict:
+        return {
+            "status": "online",
+            "app": "Groove4U API",
+            "database": "Supabase PostgreSQL",
+            "auth": "Supabase Auth",
+            "docs_url": "/docs"
+        }
 
 
 if __name__ == "__main__":
