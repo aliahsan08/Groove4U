@@ -66,65 +66,16 @@ async def _run_cold_start_pipeline(
             artist_found = []
             print(f"[ColdStart] Searching for artist='{artist_name}' norm='{norm_target}' need={fetch_n}")
 
-            # Tier A: Search in-memory item_meta using normalized artist matching
-            if recommendation_engine.item_meta is not None:
-                item_meta_obj = recommendation_engine.item_meta
-                if hasattr(item_meta_obj, "iterrows"):
-                    for _, row in item_meta_obj.iterrows():
-                        if len(artist_found) >= fetch_n:
-                            break
-                        meta_art = str(row.get("artist", ""))
-                        meta_art_norm = normalize_artist_name(meta_art)
-                        if norm_target and (meta_art_norm == norm_target or norm_target in meta_art_norm or meta_art_norm in norm_target):
-                            title = str(row.get("track", row.get("title", "Track")))
-                            art = meta_art or artist_name
-                            tr_str = f"{title} — {art}"
-                            tr_lower = tr_str.lower()
-                            title_lower = title.lower()
-                            if title_lower in all_exclusions or tr_lower in all_exclusions:
-                                continue
-                            if not any(af["track_id_str"].lower() == tr_lower for af in artist_found):
-                                genre_val = str(row.get("tag", row.get("genre", top_genres[0] if top_genres else "Pop")))
-                                artist_found.append({
-                                    "qdrant_point_id": 870000 + len(artist_found),
-                                    "track_id_str": tr_str,
-                                    "title": title,
-                                    "artist": art,
-                                    "genre": genre_val,
-                                    "score": 0.96,
-                                    "rank_score": 0.96
-                                })
-                elif isinstance(item_meta_obj, dict):
-                    for t_idx, meta in item_meta_obj.items():
-                        if len(artist_found) >= fetch_n:
-                            break
-                        if isinstance(meta, dict):
-                            meta_art = str(meta.get("artist", ""))
-                            title = str(meta.get("track", meta.get("title", "Track")))
-                            genre_val = str(meta.get("tag", meta.get("genre", top_genres[0] if top_genres else "Pop")))
-                        else:
-                            meta_art = ""
-                            title = "Track"
-                            genre_val = top_genres[0] if top_genres else "Pop"
-                        meta_art_norm = normalize_artist_name(meta_art)
-                        if norm_target and (meta_art_norm == norm_target or norm_target in meta_art_norm or meta_art_norm in norm_target):
-                            art = meta_art or artist_name
-                            tr_str = f"{title} — {art}"
-                            tr_lower = tr_str.lower()
-                            title_lower = title.lower()
-                            if title_lower in all_exclusions or tr_lower in all_exclusions:
-                                continue
-                            if not any(af["track_id_str"].lower() == tr_lower for af in artist_found):
-                                artist_found.append({
-                                    "qdrant_point_id": 870000 + len(artist_found),
-                                    "track_id_str": tr_str,
-                                    "title": title,
-                                    "artist": art,
-                                    "genre": genre_val,
-                                    "score": 0.96,
-                                    "rank_score": 0.96
-                                })
-            print(f"[ColdStart] TierA(item_meta) found {len(artist_found)} tracks for '{artist_name}'")
+            # Tier A: Search item_meta via Gradio inference space
+            try:
+                artist_found = recommendation_engine.search_artist_tracks(
+                    artist_name, fetch_n, list(all_exclusions)
+                )
+            except Exception as e:
+                print(f"[ColdStart] Gradio artist search error for '{artist_name}': {e}")
+                artist_found = []
+
+            print(f"[ColdStart] TierA(Gradio) found {len(artist_found)} tracks for '{artist_name}'")
 
             # Tier B: Qdrant scroll
             if len(artist_found) < fetch_n and recommendation_engine.qdrant_client:
@@ -661,7 +612,7 @@ async def add_new_track(payload: AddTrackRequest, current_user: Dict[str, Any] =
     """
     Adds a new/unseen song:
     1. Runs 3-tier enrichment (Last.fm -> Discogs -> Groq LLM).
-    2. Runs PyTorch Item Tower -> 128-dim item vector.
+    2. Runs Item Tower -> 128-dim item vector (via Gradio Space).
     3. Adds "Song — Artist" to Bloom Filter.
     4. Upserts vector to Qdrant.
     """
@@ -671,7 +622,7 @@ async def add_new_track(payload: AddTrackRequest, current_user: Dict[str, Any] =
         # 1. Run 3-tier metadata pipeline
         enriched = await metadata_service.enrich_track_metadata(payload.title, payload.artist)
         
-        # 2. Run Item Tower for 128-dim embedding
+        # 2. Run Item Tower for 128-dim embedding (via Gradio Space)
         item_vector = recommendation_engine.embed_new_track(
             enriched["title"],
             enriched["artist"],

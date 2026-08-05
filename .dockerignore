@@ -16,3 +16,6 @@ venv
 disassembled.txt
 .vscode
 .idea
+models/
+GradioInference.md
+G4U inference/

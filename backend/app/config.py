@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     DISCOGS_USER_TOKEN: str = "your_discogs_user_token_here"
     GROQ_API_KEY: str = "your_groq_api_key_here"
 
+    # Gradio HF Space Configuration (ML inference offloaded)
+    GRADIO_SPACE_URL: str = "https://aliahsan08-g4u-inference.hf.space"
+    HF_SPACE_URL: str = ""
+    HF_READ_TOKEN: str = ""
+
     # Server Host & CORS Settings
     HOST: str = "0.0.0.0"
     PORT: int = 8000

@@ -45,3 +45,5 @@ Thumbs.db
 *.swo
 
 models/
+GradioInference.md
+G4U inference/

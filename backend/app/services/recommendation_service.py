@@ -1,157 +1,213 @@
+"""
+Recommendation Engine Service (Lightweight — no ML dependencies).
+
+All ML model inference (PyTorch Two-Tower, LightGBM LambdaMART) has been
+offloaded to a Gradio HF Space.  This service now only handles:
+  - Qdrant vector search (candidate retrieval)
+  - Diversity reranking (pure Python)
+  - TTL cache for fresh recommendations
+  - HTTP calls to the Gradio Space for vector generation & ranking
+
+No torch, lightgbm, joblib, or pandas are imported here.
+"""
+
 import os
-import pickle
-import joblib
-import torch
-import torch.nn as nn
+import time
+import httpx
 import numpy as np
-import pandas as pd
-import lightgbm as lgb
 from typing import List, Dict, Any, Optional
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qmodels
 from app.config import settings
 
 
-class UserTower(nn.Module):
-    def __init__(self, num_users=2431, num_tags=26913, num_tracks=90383, embed_dim=64, tag_dim=128, output_dim=128):
-        super().__init__()
-        self.user_embedding = nn.Embedding(num_users, embed_dim)
-        self.tag_embedding = nn.EmbeddingBag(num_tags, tag_dim, mode='sum')
-        self.track_history = nn.EmbeddingBag(num_tracks, embed_dim, mode='sum')
+def normalize_gradio_url(raw_url: str) -> str:
+    """
+    Normalizes any HuggingFace Space reference into a valid HTTPS direct API URL.
+    Handles:
+      - "aliahsan08/g4u_inference" -> "https://aliahsan08-g4u-inference.hf.space"
+      - "aliahsan08/g4u-inference" -> "https://aliahsan08-g4u-inference.hf.space"
+      - "https://huggingface.co/spaces/aliahsan08/g4u_inference" -> "https://aliahsan08-g4u-inference.hf.space"
+      - "https://aliahsan08-g4u-inference.hf.space" -> "https://aliahsan08-g4u-inference.hf.space"
+    """
+    if not raw_url:
+        return "https://aliahsan08-g4u-inference.hf.space"
 
-        input_dim = embed_dim + tag_dim + embed_dim
-        self.dnn = nn.Sequential(
-            nn.Linear(input_dim, 256),
-            nn.ReLU(),
-            nn.LayerNorm(256),
-            nn.Linear(256, output_dim)
-        )
+    raw = raw_url.strip().rstrip("/")
 
-    def forward(self, user_idx, tag_indices, tag_offsets=None, tag_weights=None, hist_idx=None, hist_off=None, hist_w=None):
-        device = user_idx.device if user_idx is not None else (tag_indices.device if tag_indices is not None else 'cpu')
-        batch_size = user_idx.size(0) if user_idx is not None else 1
+    # Case 1: Full HF web URL (https://huggingface.co/spaces/owner/space_name)
+    if "huggingface.co/spaces/" in raw:
+        space_path = raw.split("huggingface.co/spaces/")[-1]
+        parts = [p for p in space_path.split("/") if p]
+        if len(parts) >= 2:
+            owner = parts[0].lower().replace("_", "-")
+            space = parts[1].lower().replace("_", "-")
+            return f"https://{owner}-{space}.hf.space"
 
-        if user_idx is None:
-            u_emb = torch.zeros((batch_size, 64), device=device)
-        else:
-            u_emb = self.user_embedding(user_idx)
+    # Case 2: Direct "owner/space_name" format (e.g. "aliahsan08/g4u_inference")
+    if not raw.startswith("http://") and not raw.startswith("https://"):
+        if "/" in raw:
+            parts = [p for p in raw.split("/") if p]
+            if len(parts) == 2:
+                owner = parts[0].lower().replace("_", "-")
+                space = parts[1].lower().replace("_", "-")
+                return f"https://{owner}-{space}.hf.space"
 
-        if tag_indices is not None and tag_indices.numel() > 0:
-            if tag_indices.dim() == 2:
-                tag_indices = tag_indices.reshape(-1)
-            if tag_weights is not None and tag_weights.dim() == 2:
-                tag_weights = tag_weights.reshape(-1)
-            if tag_offsets is None:
-                tag_offsets = torch.tensor([0], dtype=torch.long, device=device)
-            t_emb = self.tag_embedding(tag_indices, tag_offsets, per_sample_weights=tag_weights)
-            if t_emb.dim() == 1:
-                t_emb = t_emb.unsqueeze(0)
-        else:
-            t_emb = torch.zeros((batch_size, 128), device=device)
-
-        if hist_idx is not None and hist_idx.numel() > 0:
-            if hist_idx.dim() == 2:
-                hist_idx = hist_idx.reshape(-1)
-            if hist_w is not None and hist_w.dim() == 2:
-                hist_w = hist_w.reshape(-1)
-            if hist_off is None:
-                hist_off = torch.tensor([0], dtype=torch.long, device=device)
-            h_emb = self.track_history(hist_idx, hist_off, per_sample_weights=hist_w)
-            if h_emb.dim() == 1:
-                h_emb = h_emb.unsqueeze(0)
-        else:
-            h_emb = torch.zeros((batch_size, 64), device=device)
-
-        x = torch.cat([u_emb, t_emb, h_emb], dim=-1)
-        import torch.nn.functional as F
-        return F.normalize(self.dnn(x), p=2, dim=1)
-
-
-class ItemTower(nn.Module):
-    def __init__(self, num_tracks=90383, num_tags=26913, text_dim=384, embed_dim=64, tag_dim=128, output_dim=128):
-        super().__init__()
-        self.track_embedding = nn.Embedding(num_tracks, embed_dim)
-        self.tag_embedding = nn.EmbeddingBag(num_tags, tag_dim, mode='sum')
-
-        input_dim = embed_dim + tag_dim + text_dim
-        self.dnn = nn.Sequential(
-            nn.Linear(input_dim, 256),
-            nn.ReLU(),
-            nn.LayerNorm(256),
-            nn.Linear(256, output_dim)
-        )
-
-    def forward(self, track_idx, tag_indices, tag_offsets=None, tag_weights=None, text_emb=None):
-        device = track_idx.device if track_idx is not None else (text_emb.device if text_emb is not None else 'cpu')
-        batch_size = track_idx.size(0) if track_idx is not None else 1
-
-        if track_idx is None:
-            t_emb = torch.zeros((batch_size, 64), device=device)
-        else:
-            t_emb = self.track_embedding(track_idx)
-
-        if tag_indices is not None and tag_indices.numel() > 0:
-            if tag_indices.dim() == 2:
-                tag_indices = tag_indices.reshape(-1)
-            if tag_offsets is None:
-                tag_offsets = torch.tensor([0], dtype=torch.long, device=device)
-            tag_emb = self.tag_embedding(tag_indices, tag_offsets, per_sample_weights=tag_weights)
-            if tag_emb.dim() == 1:
-                tag_emb = tag_emb.unsqueeze(0)
-        else:
-            tag_emb = torch.zeros((batch_size, 128), device=device)
-
-        if text_emb is None:
-            text_emb = torch.zeros((batch_size, 384), device=device)
-
-        x = torch.cat([t_emb, tag_emb, text_emb], dim=-1)
-        import torch.nn.functional as F
-        return F.normalize(self.dnn(x), p=2, dim=1)
+    return raw
 
 
 class RecommendationEngineService:
     def __init__(self):
-        curr_dir = os.path.dirname(os.path.abspath(__file__)) # app/services
-        backend_dir = os.path.dirname(os.path.dirname(curr_dir)) # backend
-        project_root = os.path.dirname(backend_dir) # project root
-
-        possible_dirs = [
-            os.path.join(project_root, "models"),
-            os.path.join(backend_dir, "models"),
-            os.path.join(curr_dir, "models")
-        ]
-
-        self.models_dir = possible_dirs[0]
-        for d in possible_dirs:
-            if os.path.exists(os.path.join(d, "Two Tower NN")):
-                self.models_dir = d
-                break
-
         self.is_initialized = False
-
-        self.user_tower = None
-        self.item_tower = None
-        self.lgbm_ranker = None
-
-        self.user2idx = {}
-        self.track2idx = {}
-        self.idx2track = {}
-        self.tag2idx = {}
-        self.item_meta = None
-        self.reranker_artifacts = {}
-
         self.qdrant_client = None
 
-        # 120-second TTL cache to prevent repeating recommendations when user generates within 120s
+        # 120-second TTL cache to prevent repeating recommendations
         self.ttl_cache = {}  # { user_id: { track_identifier_lower: expiry_timestamp } }
         self.ttl_seconds = 120.0
+
+        # Gradio Space URL for ML inference (resolves "username/space", full web URL, or direct .hf.space domain)
+        raw_url = (
+            getattr(settings, "GRADIO_SPACE_URL", None)
+            or os.getenv("GRADIO_SPACE_URL")
+            or os.getenv("HF_SPACE_URL", "")
+        )
+        self.gradio_url = normalize_gradio_url(raw_url)
+
+        # HTTP client for Gradio API calls (reuse connection)
+        self._http_client = None
+
+    def _get_headers(self) -> dict:
+        headers = {}
+        token = getattr(settings, "HF_READ_TOKEN", None) or os.getenv("HF_READ_TOKEN")
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        return headers
+
+    # ── HTTP Client ────────────────────────────
+
+    def _get_http_client(self) -> httpx.AsyncClient:
+        if self._http_client is None or self._http_client.is_closed:
+            self._http_client = httpx.AsyncClient(timeout=30.0)
+        return self._http_client
+
+    # ── Gradio API Call Helper ─────────────────
+
+    async def _call_gradio_api(self, api_name: str, data: dict) -> Any:
+        """
+        Calls a Gradio Space API endpoint via HTTP POST.
+        Gradio's /call/{api_name} endpoint accepts JSON and returns a result.
+        """
+        url = f"{self.gradio_url}/call/{api_name}"
+        headers = self._get_headers()
+        try:
+            client = self._get_http_client()
+            import json
+            payload = {"data": list(data.values())}
+
+            # Step 1: Submit the prediction
+            resp = await client.post(url, json=payload, headers=headers)
+            if resp.status_code != 200:
+                print(f"[RecEngine] Gradio API {api_name} returned status {resp.status_code}: {resp.text}")
+                return None
+
+            result = resp.json()
+            if "event_id" not in result:
+                # Some Gradio versions return data directly
+                if "data" in result:
+                    return result["data"][0] if isinstance(result["data"], list) else result["data"]
+                return None
+
+            # Step 2: Fetch the result via SSE stream
+            event_id = result["event_id"]
+            result_url = f"{self.gradio_url}/call/{api_name}/{event_id}"
+            result_resp = await client.get(result_url, headers=headers)
+            if result_resp.status_code == 200:
+                text = result_resp.text
+                current_event = None
+                for line in text.split("\n"):
+                    line_str = line.strip()
+                    if line_str.startswith("event: "):
+                        current_event = line_str[7:].strip()
+                    elif line_str.startswith("data: "):
+                        data_str = line_str[6:].strip()
+                        if data_str == "null":
+                            continue
+                        try:
+                            parsed = json.loads(data_str)
+                            if current_event == "complete" or current_event is None:
+                                if isinstance(parsed, list) and len(parsed) > 0:
+                                    return parsed[0]
+                                if parsed is not None:
+                                    return parsed
+                        except Exception:
+                            pass
+            return None
+        except Exception as e:
+            print(f"[RecEngine] Gradio API {api_name} error: {e}")
+            return None
+
+    # ── Synchronous Gradio Call (for non-async contexts) ──
+
+    def _call_gradio_api_sync(self, api_name: str, data: dict) -> Any:
+        """
+        Synchronous version of _call_gradio_api for use in non-async contexts.
+        Uses httpx.Client instead of AsyncClient.
+        """
+        import json
+        url = f"{self.gradio_url}/call/{api_name}"
+        headers = self._get_headers()
+        try:
+            with httpx.Client(timeout=30.0) as client:
+                payload = {"data": list(data.values())}
+
+                # Step 1: Submit the prediction
+                resp = client.post(url, json=payload, headers=headers)
+                if resp.status_code != 200:
+                    print(f"[RecEngine] Gradio API {api_name} returned status {resp.status_code}: {resp.text}")
+                    return None
+
+                result = resp.json()
+                if "event_id" not in result:
+                    if "data" in result:
+                        return result["data"][0] if isinstance(result["data"], list) and len(result["data"]) > 0 else result["data"]
+                    return None
+
+                # Step 2: Fetch the result via SSE stream
+                event_id = result["event_id"]
+                result_url = f"{self.gradio_url}/call/{api_name}/{event_id}"
+                result_resp = client.get(result_url, headers=headers)
+                if result_resp.status_code == 200:
+                    text = result_resp.text
+                    current_event = None
+                    for line in text.split("\n"):
+                        line_str = line.strip()
+                        if line_str.startswith("event: "):
+                            current_event = line_str[7:].strip()
+                        elif line_str.startswith("data: "):
+                            data_str = line_str[6:].strip()
+                            if data_str == "null":
+                                continue
+                            try:
+                                parsed = json.loads(data_str)
+                                if current_event == "complete" or current_event is None:
+                                    if isinstance(parsed, list) and len(parsed) > 0:
+                                        return parsed[0]
+                                    if parsed is not None:
+                                        return parsed
+                            except Exception:
+                                pass
+                return None
+        except Exception as e:
+            print(f"[RecEngine] Gradio API {api_name} sync error: {e}")
+            return None
+
+    # ── TTL Cache Methods ──────────────────────
 
     def get_ttl_excluded_titles(self, user_id: Optional[str]) -> set:
         """Returns non-expired song titles/identifiers cached for this user within the last 120s."""
         if not user_id:
             return set()
 
-        import time
         now = time.time()
         user_dict = self.ttl_cache.get(user_id, {})
         if not user_dict:
@@ -170,7 +226,6 @@ class RecommendationEngineService:
         if not user_id:
             return
 
-        import time
         now = time.time()
         expiry = now + self.ttl_seconds
         if user_id not in self.ttl_cache:
@@ -184,71 +239,15 @@ class RecommendationEngineService:
             if tr_str:
                 self.ttl_cache[user_id][tr_str] = expiry
 
+    # ── Initialization ─────────────────────────
+
     def initialize(self):
         if self.is_initialized:
             return
 
-        print(f"[RecEngine] Initializing Recommendation Engine from models_dir: {self.models_dir}")
+        print(f"[RecEngine] Initializing lightweight Recommendation Engine (no local ML models)")
 
-        two_tower_dir = os.path.join(self.models_dir, "Two Tower NN")
-        ranker_dir = os.path.join(self.models_dir, "Ranker")
-
-        mappings_path = os.path.join(two_tower_dir, "mappings.pkl")
-        if os.path.exists(mappings_path):
-            try:
-                with open(mappings_path, "rb") as f:
-                    mp = pickle.load(f)
-                self.user2idx = mp.get("user2idx", {})
-                self.track2idx = mp.get("track2idx", {})
-                self.tag2idx = mp.get("tag2idx", {})
-                self.idx2track = mp.get("idx2track", {})
-            except Exception as e:
-                print(f"[RecEngine] Notice loading mappings.pkl: {e}")
-
-        meta_path = os.path.join(two_tower_dir, "item_meta.pkl")
-        if os.path.exists(meta_path):
-            try:
-                with open(meta_path, "rb") as f:
-                    self.item_meta = pickle.load(f)
-            except Exception as e:
-                print(f"[RecEngine] Notice loading item_meta.pkl: {e}")
-
-        user_pth = os.path.join(two_tower_dir, "user_tower.pth")
-        if os.path.exists(user_pth):
-            try:
-                num_u = max(len(self.user2idx), 2431)
-                num_t = max(len(self.tag2idx), 26913)
-                self.user_tower = UserTower(num_users=num_u, num_tags=num_t)
-                self.user_tower.load_state_dict(torch.load(user_pth, map_location="cpu"))
-                self.user_tower.eval()
-            except Exception as e:
-                print(f"[RecEngine] Notice loading user_tower.pth: {e}")
-
-        item_pth = os.path.join(two_tower_dir, "item_tower.pth")
-        if os.path.exists(item_pth):
-            try:
-                num_tr = max(len(self.track2idx), 90383)
-                num_t = max(len(self.tag2idx), 26913)
-                self.item_tower = ItemTower(num_tracks=num_tr, num_tags=num_t)
-                self.item_tower.load_state_dict(torch.load(item_pth, map_location="cpu"))
-                self.item_tower.eval()
-            except Exception as e:
-                print(f"[RecEngine] Notice loading item_tower.pth: {e}")
-
-        lgbm_path = os.path.join(ranker_dir, "lgbm_reranker.txt")
-        if os.path.exists(lgbm_path):
-            try:
-                self.lgbm_ranker = lgb.Booster(model_file=lgbm_path)
-            except Exception as e:
-                print(f"[RecEngine] Notice loading lgbm_reranker.txt: {e}")
-
-        art_path = os.path.join(ranker_dir, "reranker_artifacts.joblib")
-        if os.path.exists(art_path):
-            try:
-                self.reranker_artifacts = joblib.load(art_path)
-            except Exception as e:
-                print(f"[RecEngine] Notice loading reranker_artifacts.joblib: {e}")
-
+        # Connect to Qdrant Vector DB
         q_url = getattr(settings, "QDRANT_URL", None) or os.getenv("QDRANT_URL")
         q_key = getattr(settings, "QDRANT_API_KEY", None) or os.getenv("QDRANT_API_KEY")
 
@@ -283,8 +282,11 @@ class RecommendationEngineService:
             except Exception as e:
                 print(f"[RecEngine] Qdrant connection notice: {e}")
 
+        print(f"[RecEngine] Gradio Space URL: {self.gradio_url}")
         self.is_initialized = True
         print("[RecEngine] Initialization complete!")
+
+    # ── 1. Generate User Vector (via Gradio) ───
 
     def generate_user_vector(
         self,
@@ -293,6 +295,10 @@ class RecommendationEngineService:
         top_genres: List[str],
         top_artists: List[str]
     ) -> np.ndarray:
+        """
+        Calls the Gradio Space to generate a 128-dim user vector via UserTower.
+        Falls back to a zero vector if the Space is unreachable.
+        """
         self.initialize()
 
         if top_artists is None:
@@ -300,64 +306,30 @@ class RecommendationEngineService:
         if top_genres is None:
             top_genres = []
 
-        tag_indices_list = []
-        weights_list = []
+        import json
+        data = {
+            "user_id": user_id,
+            "taste_ratings": json.dumps(taste_ratings or []),
+            "top_genres": json.dumps(top_genres or []),
+            "top_artists": json.dumps(top_artists or [])
+        }
 
-        # Taste Profile Weighting:
-        # Rating 0 to 5 -> weight = 0 (ignored/skipped)
-        # Rating 5 to 10 -> linear scale: 5 is 0.0, 10 is 1.0 (weight = (rating - 5.0) / 5.0)
-        for item in (taste_ratings or []):
-            rating = float(item.get("rating", 0))
-            if rating >= 5.0:
-                weight = (rating - 5.0) / 5.0
-            else:
-                weight = 0.0
+        vec_list = self._call_gradio_api_sync("generate_user_vector", data)
 
-            if weight > 0.0:
-                genre = str(item.get("genre", "")).strip().lower()
-                if genre and genre in self.tag2idx:
-                    tag_indices_list.append(self.tag2idx[genre])
-                    weights_list.append(weight)
-
-        for g in top_genres:
-            g_clean = str(g).strip().lower()
-            if g_clean in self.tag2idx:
-                tag_indices_list.append(self.tag2idx[g_clean])
-                weights_list.append(1.0)
-
-        for a in top_artists:
-            a_clean = str(a).strip().lower()
-            if a_clean in self.tag2idx:
-                tag_indices_list.append(self.tag2idx[a_clean])
-                weights_list.append(1.0)
-
-        u_idx_val = self.user2idx.get(user_id, None)
-
-        with torch.no_grad():
-            if self.user_tower is not None:
-                if u_idx_val is not None:
-                    u_tensor = torch.tensor([u_idx_val], dtype=torch.long)
-                else:
-                    u_tensor = None
-
-                if tag_indices_list:
-                    t_tensor = torch.tensor([tag_indices_list], dtype=torch.long)
-                    w_tensor = torch.tensor([weights_list], dtype=torch.float32)
-                else:
-                    t_tensor = None
-                    w_tensor = None
-
-                out = self.user_tower(u_tensor, tag_indices=t_tensor, tag_weights=w_tensor)
-                vec = out.detach().cpu().numpy().flatten()
-                norm = np.linalg.norm(vec)
-                if norm > 0:
-                    vec = vec / norm
-                return vec
+        if vec_list is not None and isinstance(vec_list, list) and len(vec_list) == 128:
+            vec = np.array(vec_list, dtype=np.float32)
+            norm = np.linalg.norm(vec)
+            if norm > 0:
+                vec = vec / norm
+            return vec
 
         # Fallback vector (128-dim)
+        print("[RecEngine] Gradio generate_user_vector failed, using fallback vector")
         vec = np.zeros(128, dtype=np.float32)
         vec[0] = 1.0
         return vec
+
+    # ── 2. Retrieve Candidates from Qdrant ─────
 
     def retrieve_candidates_qdrant(
         self,
@@ -371,8 +343,9 @@ class RecommendationEngineService:
         Retrieves 500 total candidate tracks:
         - 70 reserved for top artists (split evenly among top artists)
         - 30 reserved for top genres (split evenly among top genres)
-        - 400 via Two-Tower Vector search in Qdrant / catalog
+        - 400 via Two-Tower Vector search in Qdrant
         - Hard eliminates any songs currently in the user's taste profile.
+        Fallback catalog search is now done via Gradio Space.
         """
         self.initialize()
         candidates = []
@@ -404,7 +377,7 @@ class RecommendationEngineService:
 
         col_name = "groove4u_items"
 
-        # Pre-fetch vector search pool for fallback client-side filtering if Qdrant indexes are absent
+        # Pre-fetch vector search pool for fallback client-side filtering
         qdrant_pool = []
         if self.qdrant_client is not None:
             try:
@@ -539,22 +512,31 @@ class RecommendationEngineService:
             if len(candidates) >= top_k:
                 break
 
-        # --- Fallback catalog search if Qdrant is offline or returned insufficient candidates ---
-        if len(candidates) < top_k and self.reranker_artifacts:
-            item_embs = self.reranker_artifacts.get("item_embs")
-            track_to_artist = self.reranker_artifacts.get("track_to_artist", {})
-            if item_embs is not None:
-                sims = np.dot(item_embs, user_vector)
-                top_indices = np.argsort(-sims)
-                for idx in top_indices:
-                    t_str = self.idx2track.get(idx, f"Track #{idx}")
-                    artist_name = track_to_artist.get(idx, "")
-                    t_title = t_str.split("—")[0].strip() if "—" in t_str else t_str
-                    add_candidate(str(idx), t_str, t_title, artist_name, "Pop", float(sims[idx]))
+        # --- Fallback catalog search via Gradio Space if Qdrant is offline ---
+        if len(candidates) < top_k:
+            import json
+            data = {
+                "user_vector": json.dumps(user_vector.tolist()),
+                "top_k": top_k,
+                "exclude_titles": json.dumps(list(exclude_set))
+            }
+            fallback_cands = self._call_gradio_api_sync("fallback_catalog_search", data)
+            if fallback_cands and isinstance(fallback_cands, list):
+                for item in fallback_cands:
                     if len(candidates) >= top_k:
                         break
+                    add_candidate(
+                        item.get("track_id", ""),
+                        item.get("track_id_str", ""),
+                        item.get("title", ""),
+                        item.get("artist", ""),
+                        item.get("genre", "Pop"),
+                        float(item.get("score", 0.0))
+                    )
 
         return candidates[:top_k]
+
+    # ── 3. Rank Candidates (via Gradio LGBM) ───
 
     def rank_candidates_lgbm(
         self,
@@ -568,8 +550,8 @@ class RecommendationEngineService:
         top_n: int = 500
     ) -> List[Dict[str, Any]]:
         """
-        Ranks candidates using LightGBM LambdaMART ranker.
-        Keeps all candidates intact without premature deletion during ranking.
+        Ranks candidates using LightGBM LambdaMART ranker via Gradio Space.
+        Falls back to score-based sorting if the Space is unreachable.
         """
         self.initialize()
 
@@ -577,43 +559,25 @@ class RecommendationEngineService:
         if not valid_candidates:
             return []
 
-        if self.lgbm_ranker is None:
-            sorted_cands = sorted(valid_candidates, key=lambda x: x.get("score", 0), reverse=True)
-            return sorted_cands[:top_n]
+        import json
+        data = {
+            "candidates": json.dumps(valid_candidates),
+            "top_artists": json.dumps(top_artists or []),
+            "top_genres": json.dumps(top_genres or []),
+            "top_n": top_n
+        }
 
-        try:
-            top_artists_lower = {a.lower() for a in (top_artists or [])}
-            top_genres_lower = {g.lower() for g in (top_genres or [])}
+        ranked = self._call_gradio_api_sync("rank_candidates", data)
 
-            features_list = []
-            for item in valid_candidates:
-                sim_score = float(item.get("score", 0.0))
-                art_name = item.get("artist", "").lower()
-                gen_name = item.get("genre", "").lower()
+        if ranked is not None and isinstance(ranked, list) and len(ranked) > 0:
+            return ranked
 
-                is_fav_artist = 1.0 if art_name in top_artists_lower else 0.0
-                is_fav_genre = 1.0 if gen_name in top_genres_lower else 0.0
+        # Fallback: sort by score
+        print("[RecEngine] Gradio rank_candidates failed, using score-based fallback")
+        sorted_cands = sorted(valid_candidates, key=lambda x: x.get("score", 0), reverse=True)
+        return sorted_cands[:top_n]
 
-                feat = [
-                    sim_score,
-                    is_fav_artist,
-                    is_fav_genre,
-                    0.5, 0.5, 0.5, 0.5, 0.5
-                ]
-                features_list.append(feat)
-
-            feats_arr = np.array(features_list, dtype=np.float32)
-            preds = self.lgbm_ranker.predict(feats_arr)
-
-            for i, cand in enumerate(valid_candidates):
-                cand["rank_score"] = float(preds[i])
-
-            ranked = sorted(valid_candidates, key=lambda x: x.get("rank_score", 0), reverse=True)
-            return ranked[:top_n]
-        except Exception as e:
-            print(f"[RecEngine] LGBM ranking notice: {e}")
-            sorted_cands = sorted(valid_candidates, key=lambda x: x.get("score", 0), reverse=True)
-            return sorted_cands[:top_n]
+    # ── 4. Diversity Reranking (local, pure Python) ──
 
     def rerank_diversity(
         self,
@@ -635,7 +599,7 @@ class RecommendationEngineService:
         if user_id:
             ttl_set = self.get_ttl_excluded_titles(user_id)
             exclude_set = exclude_set.union(ttl_set)
-        
+
         try:
             k_val = int(target_k)
         except Exception:
@@ -695,44 +659,66 @@ class RecommendationEngineService:
 
         return final_recs
 
+    # ── 5. Embed New Track (via Gradio ItemTower) ──
+
     def embed_new_track(self, title: str, artist: str, tags: List[str], genre: Optional[str] = None) -> np.ndarray:
         """
-        Embeds a new/custom track using PyTorch ItemTower with tag & artist indices.
+        Calls the Gradio Space to embed a new/custom track using ItemTower.
         Returns a normalized 128-dimensional embedding vector.
         """
         self.initialize()
 
-        tag_indices_list = []
-        if tags:
-            for t in tags:
-                t_clean = str(t).strip().lower()
-                if t_clean in self.tag2idx:
-                    tag_indices_list.append(self.tag2idx[t_clean])
+        import json
+        data = {
+            "title": title,
+            "artist": artist,
+            "tags": json.dumps(tags or []),
+            "genre": genre or ""
+        }
 
-        if genre:
-            g_clean = str(genre).strip().lower()
-            if g_clean in self.tag2idx and self.tag2idx[g_clean] not in tag_indices_list:
-                tag_indices_list.append(self.tag2idx[g_clean])
+        vec_list = self._call_gradio_api_sync("embed_new_track", data)
 
-        a_clean = str(artist).strip().lower()
-        if a_clean in self.tag2idx and self.tag2idx[a_clean] not in tag_indices_list:
-            tag_indices_list.append(self.tag2idx[a_clean])
-
-        with torch.no_grad():
-            if self.item_tower is not None and tag_indices_list:
-                t_tensor = torch.tensor([tag_indices_list], dtype=torch.long)
-                out = self.item_tower(track_idx=None, tag_indices=t_tensor)
-                vec = out.detach().cpu().numpy().flatten()
-                norm = np.linalg.norm(vec)
-                if norm > 0:
-                    return vec / norm
-                return vec
+        if vec_list is not None and isinstance(vec_list, list) and len(vec_list) == 128:
+            vec = np.array(vec_list, dtype=np.float32)
+            norm = np.linalg.norm(vec)
+            if norm > 0:
+                return vec / norm
+            return vec
 
         # Normalized fallback vector (128-dim)
+        print("[RecEngine] Gradio embed_new_track failed, using fallback vector")
         vec = np.zeros(128, dtype=np.float32)
         vec[0] = 1.0
         return vec
 
+    # ── 6. Search Artist Tracks (via Gradio item_meta) ──
+
+    def search_artist_tracks(
+        self,
+        artist_name: str,
+        limit: int = 5,
+        exclude_titles: Optional[List[str]] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Calls the Gradio Space to search item_meta for tracks by a given artist.
+        Used in cold-start pipeline Tier A.
+        """
+        self.initialize()
+
+        import json
+        data = {
+            "artist_name": artist_name,
+            "limit": limit,
+            "exclude_titles": json.dumps(exclude_titles or [])
+        }
+
+        tracks = self._call_gradio_api_sync("search_artist_tracks", data)
+
+        if tracks is not None and isinstance(tracks, list):
+            return tracks
+
+        print("[RecEngine] Gradio search_artist_tracks failed, returning empty list")
+        return []
+
 
 recommendation_engine = RecommendationEngineService()
-
