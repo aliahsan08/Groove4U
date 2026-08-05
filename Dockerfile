@@ -1,4 +1,4 @@
-# Dockerfile for GROOVE4U FastAPI Backend on Railway (Root Directory: /)
+# Context-agnostic Dockerfile for Railway (Works for any Root Directory setting)
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -6,16 +6,21 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Install Python dependencies
-COPY backend/requirements.txt ./backend/requirements.txt
-RUN pip install --no-cache-dir -r backend/requirements.txt
+# Copy the entire build context into a temporary staging folder
+COPY . /tmp_build/
 
-# Copy backend codebase
-COPY backend ./backend
+# Move the backend files to /app regardless of whether the context was '/' or '/backend'
+RUN if [ -d "/tmp_build/backend" ]; then \
+        mv /tmp_build/backend/* /app/; \
+    else \
+        mv /tmp_build/* /app/; \
+    fi && \
+    rm -rf /tmp_build
+
+# Now /app is guaranteed to contain requirements.txt and main.py
+RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8000
 
-WORKDIR /app/backend
-
-# Launch FastAPI web application server (binds to $PORT provided by Railway)
+# Launch FastAPI
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
