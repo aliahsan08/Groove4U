@@ -17,5 +17,6 @@ disassembled.txt
 .vscode
 .idea
 models/
+!models/Two Tower NN/mappings.pkl
 GradioInference.md
 G4U inference/

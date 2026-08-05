@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Track, Playlist, UserProfileInfo, TasteProfileItem } from '../types/music';
-import { Sparkles, Play, Pause, Bookmark, Check, ChevronDown, Plus, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Sparkles, Music, Star, ChevronDown, Check, Plus, AlertCircle, Play, Pause, Loader2, Image as ImageIcon, CheckCircle, Search, Save, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
 import { RAMMetadataCache } from '../services/metadataCache';
 import { ArtworkModal } from './ArtworkModal';
 import { fetchOnDemandPreviewUrl } from '../services/api';
@@ -42,6 +42,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onOpenAuthModal
 }) => {
   const [recLimit, setRecLimit] = useState<number>(5);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [openDropdownTrackId, setOpenDropdownTrackId] = useState<string | null>(null);
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(null);
@@ -175,7 +176,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <button
               className="btn-neo btn-neo-lime"
               style={{ padding: '0.85rem 1.75rem', fontSize: '1rem', boxShadow: 'var(--shadow-md)' }}
-              onClick={() => onGenerateRecommendations(recLimit)}
+              onClick={() => {
+                setCurrentSlideIndex(0);
+                onGenerateRecommendations(recLimit);
+              }}
               disabled={isGenerating}
             >
               <Sparkles size={18} className={isGenerating ? 'spinning-vinyl' : ''} />
@@ -200,36 +204,58 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </h3>
         </div>
       ) : (
-        <div className="editorial-grid">
-          {top5Tracks.map((rawTrack, idx) => {
-            const track = RAMMetadataCache.hydrateTrack(rawTrack);
-            const savedInPlaylists = playlists.filter(pl => pl.tracks.some(t => t.id === track.id));
-            const isSavedAnywhere = savedInPlaylists.length > 0;
-            const isDropdownOpen = openDropdownTrackId === track.id;
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '400px', gap: '1rem', marginBottom: '1rem' }}>
+            <button
+              onClick={() => setCurrentSlideIndex(prev => (prev === 0 ? top5Tracks.length - 1 : prev - 1))}
+              className="btn-neo"
+              style={{ padding: '0.75rem', backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-color)', color: 'var(--text-main)', cursor: 'pointer' }}
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+              TRACK {currentSlideIndex + 1} OF {top5Tracks.length}
+            </div>
+            <button
+              onClick={() => setCurrentSlideIndex(prev => (prev === top5Tracks.length - 1 ? 0 : prev + 1))}
+              className="btn-neo"
+              style={{ padding: '0.75rem', backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-color)', color: 'var(--text-main)', cursor: 'pointer' }}
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
 
-            const coverImage = track.coverUrl || (track as any).cover_url || '';
-            const previewUrl = track.previewUrl || (track as any).preview_url;
-            const isPlayingThis = currentPlayingTrackId ? (currentPlayingTrackId === track.id && isPlaying) : (playingTrackId === track.id);
+          <div style={{ width: '100%', maxWidth: '400px' }}>
+            {(() => {
+              const rawTrack = top5Tracks[currentSlideIndex];
+              const track = RAMMetadataCache.hydrateTrack(rawTrack);
+              const savedInPlaylists = playlists.filter(pl => pl.tracks.some(t => t.id === track.id));
+              const isSavedAnywhere = savedInPlaylists.length > 0;
+              const isDropdownOpen = openDropdownTrackId === track.id;
 
-            return (
-              <div
-                key={track.id}
-                className="tactile-card home-card-mobile"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  gap: '1.25rem',
-                  backgroundColor: 'var(--bg-secondary)',
-                  position: 'relative'
-                }}
-              >
+              const coverImage = track.coverUrl || (track as any).cover_url || '';
+              const previewUrl = track.previewUrl || (track as any).preview_url;
+              const isPlayingThis = currentPlayingTrackId ? (currentPlayingTrackId === track.id && isPlaying) : (playingTrackId === track.id);
+
+              return (
+                <div
+                  key={track.id}
+                  className="tactile-card home-card-mobile"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '1.25rem',
+                    backgroundColor: 'var(--bg-secondary)',
+                    position: 'relative'
+                  }}
+                >
                 {/* Card Main Body */}
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                   {/* Card Header: Rank Badge & Confidence Score */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                     <span className="badge-neo badge-red">
-                      #{idx + 1}
+                      #{currentSlideIndex + 1}
                     </span>
                     {(isLoggedIn && tasteCount >= 5) && (
                       <span className="badge-neo badge-lime">
@@ -559,8 +585,9 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   )}
                 </div>
               </div>
-            );
-          })}
+              );
+            })()}
+          </div>
         </div>
       )}
 

@@ -546,7 +546,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                    <div className="action-buttons-container" style={{ alignItems: 'center', flexShrink: 0 }}>
                       <button
                         className={isPlayingThis ? "btn-neo btn-neo-red" : "btn-neo btn-neo-lime"}
                         style={{

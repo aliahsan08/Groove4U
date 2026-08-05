@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TasteProfileItem, Track, UserProfileInfo } from '../types/music';
-import { Star, Plus, Trash2, CheckCircle, AlertCircle, Loader2, ArrowLeft, Maximize2, Play, Pause, Music, User, Sparkles, Image as ImageIcon, X } from 'lucide-react';
+import { Star, Plus, Trash2, CheckCircle, AlertCircle, Loader2, ArrowLeft, Maximize2, Play, Pause, Music, User, Sparkles, Image as ImageIcon, X, ChevronDown } from 'lucide-react';
 import { fetchOnDemandPreviewUrl } from '../services/api';
 import { RAMMetadataCache } from '../services/metadataCache';
 import { ArtworkModal } from './ArtworkModal';
@@ -33,6 +33,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
 }) => {
   const [isFullDeckView, setIsFullDeckView] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<'songs' | 'genres' | 'artists'>('songs');
+  const [isSubTabDropdownOpen, setIsSubTabDropdownOpen] = useState(false);
   const [artworkModalTrack, setArtworkModalTrack] = useState<{ artist: string; title: string; coverUrl?: string } | null>(null);
 
   // Input states
@@ -570,8 +571,8 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
         </p>
       </div>
 
-      {/* 3 Sub-Tabs Navigation Bar with Tactile Button Design */}
-      <div className="sub-tabs-container" style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.75rem', marginBottom: '2rem', borderBottom: '2px solid var(--border-color)' }}>
+      {/* Desktop Sub-Tabs Navigation */}
+      <div className="sub-tabs-desktop sub-tabs-container" style={{ gap: '0.75rem', paddingBottom: '0.75rem', marginBottom: '2rem', borderBottom: '2px solid var(--border-color)' }}>
         <button
           className={`sub-tab-btn ${activeSubTab === 'songs' ? 'sub-tab-active' : ''}`}
           onClick={() => setActiveSubTab('songs')}
@@ -595,6 +596,57 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
         >
           <User size={16} /> TOP ARTISTS ({(userProfile?.topArtists || []).length})
         </button>
+      </div>
+
+      {/* Mobile Sub-Tabs Dropdown */}
+      <div className="sub-tabs-mobile" style={{ marginBottom: '2rem', position: 'relative' }}>
+        <button 
+          className="btn-neo"
+          style={{ width: '100%', justifyContent: 'space-between', backgroundColor: 'var(--bg-secondary)', padding: '1rem' }}
+          onClick={() => setIsSubTabDropdownOpen(!isSubTabDropdownOpen)}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {activeSubTab === 'songs' && <><Music size={18} /> RATED SONGS ({tasteItems.length})</>}
+            {activeSubTab === 'genres' && <><Sparkles size={18} /> TOP GENRES ({(userProfile?.topGenres || []).length})</>}
+            {activeSubTab === 'artists' && <><User size={18} /> TOP ARTISTS ({(userProfile?.topArtists || []).length})</>}
+          </div>
+          <ChevronDown size={20} style={{ transform: isSubTabDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+        </button>
+
+        {isSubTabDropdownOpen && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '0.5rem',
+            backgroundColor: 'var(--bg-secondary)',
+            border: '2px solid var(--border-color)',
+            boxShadow: 'var(--shadow-md)',
+            zIndex: 50,
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <button
+              onClick={() => { setActiveSubTab('songs'); setIsSubTabDropdownOpen(false); }}
+              style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: activeSubTab === 'songs' ? 'var(--bg-card-hover)' : 'transparent', border: 'none', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-main)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 700 }}
+            >
+              <Music size={16} /> RATED SONGS ({tasteItems.length})
+            </button>
+            <button
+              onClick={() => { setActiveSubTab('genres'); setIsSubTabDropdownOpen(false); }}
+              style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: activeSubTab === 'genres' ? 'var(--bg-card-hover)' : 'transparent', border: 'none', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-main)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 700 }}
+            >
+              <Sparkles size={16} /> TOP GENRES ({(userProfile?.topGenres || []).length})
+            </button>
+            <button
+              onClick={() => { setActiveSubTab('artists'); setIsSubTabDropdownOpen(false); }}
+              style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: activeSubTab === 'artists' ? 'var(--bg-card-hover)' : 'transparent', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 700 }}
+            >
+              <User size={16} /> TOP ARTISTS ({(userProfile?.topArtists || []).length})
+            </button>
+          </div>
+        )}
       </div>
 
       {/* SUB-TAB 1: RATED SONGS */}
@@ -842,7 +894,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                        <div className="action-buttons-container" style={{ alignItems: 'center', flexShrink: 0 }}>
                           {(() => {
                             const isPlayingThis = currentPlayingTrackId ? (currentPlayingTrackId === item.id && isPlaying) : (playingTrackId === item.id);
                             return (
@@ -1262,7 +1314,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                    <div className="action-buttons-container" style={{ alignItems: 'center', flexShrink: 0 }}>
                       <button
                         className="btn-neo"
                         style={{

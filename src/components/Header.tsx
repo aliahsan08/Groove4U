@@ -1,4 +1,5 @@
-import { Radio, Sparkles, Music, Star, User, LogIn, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { Radio, Sparkles, Music, Star, User, LogIn, LogOut, Menu, X } from 'lucide-react';
 import { MusicThemeToggle } from './MusicThemeToggle';
 import { GrooveLogo } from './GrooveLogo';
 
@@ -27,6 +28,13 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuthModal,
   onLogout
 }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleTabClick = (tab: 'home' | 'playlist' | 'taste' | 'profile') => {
+    setActiveTab(tab);
+    setIsSidebarOpen(false);
+  };
+
   return (
     <header className="main-header">
       {/* Top Flash Stripe: Dual Jaws stomp inward from left & right edges to center, then retract revealing new text color */}
@@ -73,8 +81,8 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Center Column: 4 Core Navigation Tabs (Dead-Centered with respect to the page) */}
-        <nav className="main-header-nav" style={{
+        {/* Center Column: 4 Core Navigation Tabs (Desktop) */}
+        <nav className="main-header-nav desktop-nav" style={{
           display: 'flex',
           border: '2px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
@@ -83,14 +91,14 @@ export const Header: React.FC<HeaderProps> = ({
         }}>
           <button
             className={`nav-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
-            onClick={() => setActiveTab('home')}
+            onClick={() => handleTabClick('home')}
           >
             <Sparkles size={16} /> RECOMMENDATIONS
           </button>
 
           <button
             className={`nav-tab-btn ${activeTab === 'playlist' ? 'active' : ''}`}
-            onClick={() => isLoggedIn ? setActiveTab('playlist') : onOpenAuthModal()}
+            onClick={() => { if (isLoggedIn) handleTabClick('playlist'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Playlists' : ''}
           >
@@ -99,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             className={`nav-tab-btn ${activeTab === 'taste' ? 'active' : ''}`}
-            onClick={() => isLoggedIn ? setActiveTab('taste') : onOpenAuthModal()}
+            onClick={() => { if (isLoggedIn) handleTabClick('taste'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Taste Profile' : ''}
           >
@@ -108,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             className={`nav-tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => isLoggedIn ? setActiveTab('profile') : onOpenAuthModal()}
+            onClick={() => { if (isLoggedIn) handleTabClick('profile'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Profile' : ''}
           >
@@ -116,8 +124,8 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Right Column: Music-Themed Toggle & Auth Button */}
-        <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Right Column: Desktop Controls */}
+        <div className="desktop-controls" style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <MusicThemeToggle
             isDarkMode={isDarkMode}
             onToggle={() => setIsDarkMode(prev => !prev)}
@@ -126,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
           {isLoggedIn ? (
             <button
               className="btn-neo btn-neo-red"
-              onClick={onLogout}
+              onClick={() => { onLogout(); setIsSidebarOpen(false); }}
               title="Log Out of Groove4U"
               style={{ height: '38px', padding: '0 0.75rem', fontSize: '0.75rem', gap: '0.4rem' }}
             >
@@ -135,10 +143,96 @@ export const Header: React.FC<HeaderProps> = ({
           ) : (
             <button
               className="btn-neo btn-neo-lime"
-              onClick={onOpenAuthModal}
+              onClick={() => { onOpenAuthModal(); setIsSidebarOpen(false); }}
               style={{ height: '38px', padding: '0 0.9rem', fontSize: '0.75rem', gap: '0.4rem' }}
             >
               <LogIn size={14} /> LOGIN / SIGN UP
+            </button>
+          )}
+        </div>
+
+        {/* Right Column: Mobile Hamburger Menu Button */}
+        <div className="mobile-menu-btn" style={{ justifySelf: 'end' }}>
+          <button
+            className="btn-neo"
+            onClick={() => setIsSidebarOpen(true)}
+            style={{ padding: '0.5rem', backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-color)', color: 'var(--text-main)', cursor: 'pointer' }}
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      <div 
+        className={`mobile-sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} 
+        onClick={() => setIsSidebarOpen(false)} 
+      />
+
+      {/* Mobile Sidebar */}
+      <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <MusicThemeToggle
+            isDarkMode={isDarkMode}
+            onToggle={() => setIsDarkMode(prev => !prev)}
+          />
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', cursor: 'pointer', padding: '0.5rem' }}
+          >
+            <X size={28} />
+          </button>
+        </div>
+
+        <div className="mobile-nav-stack">
+          <button
+            className={`mobile-nav-btn ${activeTab === 'home' ? 'active' : ''}`}
+            onClick={() => handleTabClick('home')}
+          >
+            <Sparkles size={20} /> Recommendations
+          </button>
+
+          <button
+            className={`mobile-nav-btn ${activeTab === 'playlist' ? 'active' : ''}`}
+            onClick={() => { if (isLoggedIn) handleTabClick('playlist'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
+            style={!isLoggedIn ? { opacity: 0.7 } : {}}
+          >
+            <Music size={20} /> Playlists {!isLoggedIn ? '🔒' : `(${playlistCount})`}
+          </button>
+
+          <button
+            className={`mobile-nav-btn ${activeTab === 'taste' ? 'active' : ''}`}
+            onClick={() => { if (isLoggedIn) handleTabClick('taste'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
+            style={!isLoggedIn ? { opacity: 0.7 } : {}}
+          >
+            <Star size={20} /> Taste Profile {!isLoggedIn ? '🔒' : `(${tasteCount})`}
+          </button>
+
+          <button
+            className={`mobile-nav-btn ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => { if (isLoggedIn) handleTabClick('profile'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
+            style={!isLoggedIn ? { opacity: 0.7 } : {}}
+          >
+            <User size={20} /> Profile {!isLoggedIn ? '🔒' : ''}
+          </button>
+        </div>
+
+        <div style={{ marginTop: 'auto' }}>
+          {isLoggedIn ? (
+            <button
+              className="btn-neo btn-neo-red"
+              onClick={() => { onLogout(); setIsSidebarOpen(false); }}
+              style={{ width: '100%', padding: '1rem', fontSize: '1rem', gap: '0.5rem', justifyContent: 'center' }}
+            >
+              <LogOut size={18} /> LOG OUT
+            </button>
+          ) : (
+            <button
+              className="btn-neo btn-neo-lime"
+              onClick={() => { onOpenAuthModal(); setIsSidebarOpen(false); }}
+              style={{ width: '100%', padding: '1rem', fontSize: '1rem', gap: '0.5rem', justifyContent: 'center' }}
+            >
+              <LogIn size={18} /> LOGIN / SIGN UP
             </button>
           )}
         </div>
