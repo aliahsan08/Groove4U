@@ -161,183 +161,183 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
         padding: '3rem 1.5rem',
         overflowY: 'auto'
       }}>
-          <div className="tactile-card" style={{
-            maxWidth: '460px',
-            width: '100%',
-            backgroundColor: 'var(--bg-secondary)',
-            border: '3px solid var(--border-color)',
-            boxShadow: '10px 10px 0px var(--accent-lime)',
-            padding: mode === 'signup' ? '1.75rem 2rem' : '2.25rem 2rem'
-          }}>
-            {/* Mode Switcher Tabs */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem' }}>
-              <button
-                type="button"
-                className={`btn-neo ${mode === 'login' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
-                style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
-                onClick={() => setMode('login')}
-              >
-                LOG IN
-              </button>
-              <button
-                type="button"
-                className={`btn-neo ${mode === 'signup' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
-                style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
-                onClick={() => setMode('signup')}
-              >
-                SIGN UP
-              </button>
-            </div>
+        <div className="tactile-card" style={{
+          maxWidth: '460px',
+          width: '100%',
+          backgroundColor: 'var(--bg-secondary)',
+          border: '3px solid var(--border-color)',
+          boxShadow: '10px 10px 0px var(--accent-lime)',
+          padding: mode === 'signup' ? '1.75rem 2rem' : '2.25rem 2rem'
+        }}>
+          {/* Mode Switcher Tabs */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem' }}>
+            <button
+              type="button"
+              className={`btn-neo ${mode === 'login' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
+              style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
+              onClick={() => setMode('login')}
+            >
+              LOG IN
+            </button>
+            <button
+              type="button"
+              className={`btn-neo ${mode === 'signup' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
+              style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
+              onClick={() => setMode('signup')}
+            >
+              SIGN UP
+            </button>
+          </div>
 
-            {/* Error Notice */}
-            {errorMessage && (
-              <div style={{
-                backgroundColor: 'rgba(255, 0, 55, 0.15)',
-                border: '2px solid var(--accent-red)',
-                padding: '0.75rem 1rem',
-                marginBottom: '1.25rem',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.8rem',
-                color: 'var(--accent-red)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <ShieldAlert size={16} />
-                <div>{errorMessage}</div>
+          {/* Error Notice */}
+          {errorMessage && (
+            <div style={{
+              backgroundColor: 'rgba(255, 0, 55, 0.15)',
+              border: '2px solid var(--accent-red)',
+              padding: '0.75rem 1rem',
+              marginBottom: '1.25rem',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.8rem',
+              color: 'var(--accent-red)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <ShieldAlert size={16} />
+              <div>{errorMessage}</div>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: mode === 'signup' ? '0.85rem' : '1.1rem' }}>
+            {mode === 'signup' && (
+              <div>
+                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                  FULL NAME
+                </label>
+                <input
+                  type="text"
+                  className="input-neo"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Victoria Legrand"
+                  required
+                />
               </div>
             )}
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: mode === 'signup' ? '0.85rem' : '1.1rem' }}>
-              {mode === 'signup' && (
+            <div>
+              <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                EMAIL ADDRESS
+              </label>
+              <input
+                type="email"
+                className="input-neo"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="victoria@groove4u.app"
+                required
+              />
+            </div>
+
+            <div>
+              <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                PASSWORD
+              </label>
+              <input
+                type="password"
+                className="input-neo"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                minLength={6}
+                required
+              />
+            </div>
+
+            {mode === 'signup' && (
+              <>
                 <div>
                   <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
-                    FULL NAME
+                    COUNTRY
                   </label>
                   <input
                     type="text"
                     className="input-neo"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Victoria Legrand"
+                    value={country}
+                    onChange={e => setCountry(e.target.value)}
+                    placeholder="Pakistan"
                     required
                   />
                 </div>
-              )}
 
-              <div>
-                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
-                  EMAIL ADDRESS
-                </label>
-                <input
-                  type="email"
-                  className="input-neo"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="victoria.legrand@groove4u.app"
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
-                  PASSWORD
-                </label>
-                <input
-                  type="password"
-                  className="input-neo"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  minLength={6}
-                  required
-                />
-              </div>
-
-              {mode === 'signup' && (
-                <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
                     <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
-                      COUNTRY
+                      AGE
                     </label>
                     <input
-                      type="text"
+                      type="number"
+                      min="13"
+                      max="120"
                       className="input-neo"
-                      value={country}
-                      onChange={e => setCountry(e.target.value)}
-                      placeholder="Pakistan"
+                      value={age}
+                      onChange={e => setAge(e.target.value)}
+                      placeholder="24"
                       required
                     />
                   </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                      <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
-                        AGE
-                      </label>
-                      <input
-                        type="number"
-                        min="13"
-                        max="120"
-                        className="input-neo"
-                        value={age}
-                        onChange={e => setAge(e.target.value)}
-                        placeholder="24"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
-                        GENDER
-                      </label>
-                      <select
-                        className="input-neo"
-                        value={gender}
-                        onChange={e => setGender(e.target.value)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Non-binary">Non-binary</option>
-                        <option value="Prefer not to say">Prefer not to say</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                      GENDER
+                    </label>
+                    <select
+                      className="input-neo"
+                      value={gender}
+                      onChange={e => setGender(e.target.value)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Non-binary">Non-binary</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
                   </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
 
-              <button
-                type="submit"
-                className="btn-neo btn-neo-lime"
-                style={{ padding: '0.9rem', fontSize: '1rem', justifyContent: 'center', marginTop: '0.5rem' }}
-                disabled={isLoading}
-              >
-                {isLoading ? 'AUTHENTICATING...' : (mode === 'login' ? 'LOG IN' : 'CREATE ACCOUNT')}
-              </button>
-            </form>
-          </div>
-
-          {/* Continue as Guest Button Placed Directly Under the Login Card */}
-          <div style={{ marginTop: '1.5rem', width: '100%', maxWidth: '460px', textAlign: 'center' }}>
             <button
-              type="button"
-              className="btn-neo btn-neo-cyan"
-              onClick={onContinueAsGuest}
-              style={{
-                padding: '0.55rem 1.1rem',
-                fontSize: '0.825rem',
-                fontWeight: 700,
-                justifyContent: 'center',
-                display: 'inline-flex',
-                boxShadow: '0 4px 12px rgba(0, 229, 255, 0.25)',
-                gap: '0.4rem'
-              }}
+              type="submit"
+              className="btn-neo btn-neo-lime"
+              style={{ padding: '0.9rem', fontSize: '1rem', justifyContent: 'center', marginTop: '0.5rem' }}
+              disabled={isLoading}
             >
-              <Headphones size={15} /> Continue as Guest
+              {isLoading ? 'AUTHENTICATING...' : (mode === 'login' ? 'LOG IN' : 'CREATE ACCOUNT')}
             </button>
-          </div>
+          </form>
         </div>
+
+        {/* Continue as Guest Button Placed Directly Under the Login Card */}
+        <div style={{ marginTop: '1.5rem', width: '100%', maxWidth: '460px', textAlign: 'center' }}>
+          <button
+            type="button"
+            className="btn-neo btn-neo-cyan"
+            onClick={onContinueAsGuest}
+            style={{
+              padding: '0.55rem 1.1rem',
+              fontSize: '0.825rem',
+              fontWeight: 700,
+              justifyContent: 'center',
+              display: 'inline-flex',
+              boxShadow: '0 4px 12px rgba(0, 229, 255, 0.25)',
+              gap: '0.4rem'
+            }}
+          >
+            <Headphones size={15} /> Continue as Guest
+          </button>
+        </div>
+      </div>
 
       {/* Bottom Green Banner with Animated Audio Equalizer Visualizer (Shown only on Phone) */}
       <div className="auth-mobile-bottom" style={{
