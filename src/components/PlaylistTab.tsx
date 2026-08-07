@@ -706,7 +706,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
 
                       <div className="playlist-actions-right">
                         <button
-                          style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem' }}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem 0.2rem 0.2rem 1.5rem' }}
                           onClick={() => handleRemoveTrackAction(track.id, activePlaylist.id)}
                           disabled={loadingActionId === `remove-${track.id}`}
                           title="Remove from playlist"

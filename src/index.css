@@ -434,6 +434,18 @@ body {
   background-color: var(--bg-card-hover);
 }
 
+/* Disable top flash animation on mobile to save power and prevent lag */
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .flash-jaw-left, .flash-jaw-right {
+    animation: none !important;
+    display: none !important;
+  }
+  .flash-stripe-text {
+    animation: none !important;
+    color: var(--accent-lime) !important;
+  }
+}
+
 .nav-tab-btn.active {
   background-color: var(--accent-lime);
   color: #ffffff !important;

@@ -697,7 +697,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
 
       {/* SUB-TAB 1: RATED SONGS */}
       {activeSubTab === 'songs' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
           {/* Left Column: Adder Form */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="tactile-card">

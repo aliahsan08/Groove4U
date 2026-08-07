@@ -248,6 +248,7 @@ export function App() {
   };
 
   const handleRemoveTrackFromPlaylist = async (trackId: string, playlistId: string) => {
+    // Optimistic update
     setPlaylists(prev => prev.map(p => {
       if (p.id === playlistId) {
         return { ...p, tracks: p.tracks.filter(t => t.id !== trackId) };
@@ -256,6 +257,15 @@ export function App() {
     }));
     await removeTrackFromPlaylistInDB(playlistId, trackId);
   };
+
+  // Sync theme class to document.body for portals
+  useEffect(() => {
+    if (!isDarkMode) {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+  }, [isDarkMode]);
 
   const handleToggleTrackInPlaylist = async (track: Track, playlistId: string) => {
     setPlaylists(prev => prev.map(p => {
