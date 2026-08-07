@@ -127,10 +127,13 @@ body {
   top: 0;
   left: 0;
   bottom: 0;
-  width: 0%;
+  width: 50.5%;
   z-index: 10;
   opacity: 1;
   pointer-events: none;
+  transform-origin: left center;
+  will-change: transform;
+  transform: scaleX(0) translateZ(0);
   animation: syncLeftJawStomp 15s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
@@ -140,87 +143,90 @@ body {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 0%;
+  width: 50.5%;
   z-index: 10;
   opacity: 1;
   pointer-events: none;
+  transform-origin: right center;
+  will-change: transform;
+  transform: scaleX(0) translateZ(0);
   animation: syncRightJawStomp 15s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
-/* 15s Left Jaw Stomp Animation - Fast initial speed, decelerating to meeting point in center at 50% width */
+/* 15s Left Jaw Stomp Animation - Fast initial speed, decelerating to meeting point in center at scaleX(1) */
 @keyframes syncLeftJawStomp {
   /* Pass 1: Lime Green (#76B900) */
-  0% { width: 0%; background-color: #76B900; }
-  6% { width: 50.5%; background-color: #76B900; }
-  7% { width: 50.5%; background-color: #76B900; }
-  13% { width: 0%; background-color: #76B900; }
-  19.99% { width: 0%; background-color: #76B900; }
+  0% { transform: scaleX(0) translateZ(0); background-color: #76B900; }
+  6% { transform: scaleX(1) translateZ(0); background-color: #76B900; }
+  7% { transform: scaleX(1) translateZ(0); background-color: #76B900; }
+  13% { transform: scaleX(0) translateZ(0); background-color: #76B900; }
+  19.99% { transform: scaleX(0) translateZ(0); background-color: #76B900; }
 
   /* Pass 2: Dark Emerald Green (#15803D) */
-  20% { width: 0%; background-color: #15803D; }
-  26% { width: 50.5%; background-color: #15803D; }
-  27% { width: 50.5%; background-color: #15803D; }
-  33% { width: 0%; background-color: #15803D; }
-  39.99% { width: 0%; background-color: #15803D; }
+  20% { transform: scaleX(0) translateZ(0); background-color: #15803D; }
+  26% { transform: scaleX(1) translateZ(0); background-color: #15803D; }
+  27% { transform: scaleX(1) translateZ(0); background-color: #15803D; }
+  33% { transform: scaleX(0) translateZ(0); background-color: #15803D; }
+  39.99% { transform: scaleX(0) translateZ(0); background-color: #15803D; }
 
   /* Pass 3: Bright Mint Green (#34D399) */
-  40% { width: 0%; background-color: #34D399; }
-  46% { width: 50.5%; background-color: #34D399; }
-  47% { width: 50.5%; background-color: #34D399; }
-  53% { width: 0%; background-color: #34D399; }
-  59.99% { width: 0%; background-color: #34D399; }
+  40% { transform: scaleX(0) translateZ(0); background-color: #34D399; }
+  46% { transform: scaleX(1) translateZ(0); background-color: #34D399; }
+  47% { transform: scaleX(1) translateZ(0); background-color: #34D399; }
+  53% { transform: scaleX(0) translateZ(0); background-color: #34D399; }
+  59.99% { transform: scaleX(0) translateZ(0); background-color: #34D399; }
 
   /* Pass 4: Forest Dark Green (#4D7C0F) */
-  60% { width: 0%; background-color: #4D7C0F; }
-  66% { width: 50.5%; background-color: #4D7C0F; }
-  67% { width: 50.5%; background-color: #4D7C0F; }
-  73% { width: 0%; background-color: #4D7C0F; }
-  79.99% { width: 0%; background-color: #4D7C0F; }
+  60% { transform: scaleX(0) translateZ(0); background-color: #4D7C0F; }
+  66% { transform: scaleX(1) translateZ(0); background-color: #4D7C0F; }
+  67% { transform: scaleX(1) translateZ(0); background-color: #4D7C0F; }
+  73% { transform: scaleX(0) translateZ(0); background-color: #4D7C0F; }
+  79.99% { transform: scaleX(0) translateZ(0); background-color: #4D7C0F; }
 
   /* Pass 5: Pure Crisp White (#FFFFFF) */
-  80% { width: 0%; background-color: #FFFFFF; }
-  86% { width: 50.5%; background-color: #FFFFFF; }
-  87% { width: 50.5%; background-color: #FFFFFF; }
-  93% { width: 0%; background-color: #FFFFFF; }
-  100% { width: 0%; background-color: #FFFFFF; }
+  80% { transform: scaleX(0) translateZ(0); background-color: #FFFFFF; }
+  86% { transform: scaleX(1) translateZ(0); background-color: #FFFFFF; }
+  87% { transform: scaleX(1) translateZ(0); background-color: #FFFFFF; }
+  93% { transform: scaleX(0) translateZ(0); background-color: #FFFFFF; }
+  100% { transform: scaleX(0) translateZ(0); background-color: #FFFFFF; }
 }
 
 /* 15s Right Jaw Stomp Animation - Mirrors Left Jaw */
 @keyframes syncRightJawStomp {
   /* Pass 1: Lime Green (#76B900) */
-  0% { width: 0%; background-color: #76B900; }
-  6% { width: 50.5%; background-color: #76B900; }
-  7% { width: 50.5%; background-color: #76B900; }
-  13% { width: 0%; background-color: #76B900; }
-  19.99% { width: 0%; background-color: #76B900; }
+  0% { transform: scaleX(0) translateZ(0); background-color: #76B900; }
+  6% { transform: scaleX(1) translateZ(0); background-color: #76B900; }
+  7% { transform: scaleX(1) translateZ(0); background-color: #76B900; }
+  13% { transform: scaleX(0) translateZ(0); background-color: #76B900; }
+  19.99% { transform: scaleX(0) translateZ(0); background-color: #76B900; }
 
   /* Pass 2: Dark Emerald Green (#15803D) */
-  20% { width: 0%; background-color: #15803D; }
-  26% { width: 50.5%; background-color: #15803D; }
-  27% { width: 50.5%; background-color: #15803D; }
-  33% { width: 0%; background-color: #15803D; }
-  39.99% { width: 0%; background-color: #15803D; }
+  20% { transform: scaleX(0) translateZ(0); background-color: #15803D; }
+  26% { transform: scaleX(1) translateZ(0); background-color: #15803D; }
+  27% { transform: scaleX(1) translateZ(0); background-color: #15803D; }
+  33% { transform: scaleX(0) translateZ(0); background-color: #15803D; }
+  39.99% { transform: scaleX(0) translateZ(0); background-color: #15803D; }
 
   /* Pass 3: Bright Mint Green (#34D399) */
-  40% { width: 0%; background-color: #34D399; }
-  46% { width: 50.5%; background-color: #34D399; }
-  47% { width: 50.5%; background-color: #34D399; }
-  53% { width: 0%; background-color: #34D399; }
-  59.99% { width: 0%; background-color: #34D399; }
+  40% { transform: scaleX(0) translateZ(0); background-color: #34D399; }
+  46% { transform: scaleX(1) translateZ(0); background-color: #34D399; }
+  47% { transform: scaleX(1) translateZ(0); background-color: #34D399; }
+  53% { transform: scaleX(0) translateZ(0); background-color: #34D399; }
+  59.99% { transform: scaleX(0) translateZ(0); background-color: #34D399; }
 
   /* Pass 4: Forest Dark Green (#4D7C0F) */
-  60% { width: 0%; background-color: #4D7C0F; }
-  66% { width: 50.5%; background-color: #4D7C0F; }
-  67% { width: 50.5%; background-color: #4D7C0F; }
-  73% { width: 0%; background-color: #4D7C0F; }
-  79.99% { width: 0%; background-color: #4D7C0F; }
+  60% { transform: scaleX(0) translateZ(0); background-color: #4D7C0F; }
+  66% { transform: scaleX(1) translateZ(0); background-color: #4D7C0F; }
+  67% { transform: scaleX(1) translateZ(0); background-color: #4D7C0F; }
+  73% { transform: scaleX(0) translateZ(0); background-color: #4D7C0F; }
+  79.99% { transform: scaleX(0) translateZ(0); background-color: #4D7C0F; }
 
   /* Pass 5: Pure Crisp White (#FFFFFF) */
-  80% { width: 0%; background-color: #FFFFFF; }
-  86% { width: 50.5%; background-color: #FFFFFF; }
-  87% { width: 50.5%; background-color: #FFFFFF; }
-  93% { width: 0%; background-color: #FFFFFF; }
-  100% { width: 0%; background-color: #FFFFFF; }
+  80% { transform: scaleX(0) translateZ(0); background-color: #FFFFFF; }
+  86% { transform: scaleX(1) translateZ(0); background-color: #FFFFFF; }
+  87% { transform: scaleX(1) translateZ(0); background-color: #FFFFFF; }
+  93% { transform: scaleX(0) translateZ(0); background-color: #FFFFFF; }
+  100% { transform: scaleX(0) translateZ(0); background-color: #FFFFFF; }
 }
 
 /* 15s Text Color Stomp Sync - Text color changes INSTANTLY while covered by the two meeting jaws (between 6% and 7%), and opens up ALREADY IN NEW COLOR */
@@ -432,18 +438,6 @@ body {
 .nav-tab-btn:hover {
   color: var(--text-main);
   background-color: var(--bg-card-hover);
-}
-
-/* Disable top flash animation on mobile to save power and prevent lag */
-@media (max-width: 768px), (prefers-reduced-motion: reduce) {
-  .flash-jaw-left, .flash-jaw-right {
-    animation: none !important;
-    display: none !important;
-  }
-  .flash-stripe-text {
-    animation: none !important;
-    color: var(--accent-lime) !important;
-  }
 }
 
 .nav-tab-btn.active {
@@ -1071,8 +1065,8 @@ body {
     position: relative !important;
   }
   
-  .playlist-track-info { grid-area: info !important; }
-  .taste-track-info { grid-area: info !important; padding-right: 2rem !important; }
+  .playlist-track-info { grid-area: info !important; padding-right: 2.5rem !important; }
+  .taste-track-info { grid-area: info !important; padding-right: 2.5rem !important; }
   
   .playlist-actions-left, .taste-actions-left, .taste-actions-middle, .playlist-actions-middle {
     display: contents !important;
