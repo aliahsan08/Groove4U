@@ -761,7 +761,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                   <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>
                     Search Catalog Track
                   </label>
-                  <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'relative', width: '100%' }}>
                     <input
                       type="text"
                       placeholder="Talk Talk - Charli xcx"
@@ -770,6 +770,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                       className="input-neo"
                       required
                       autoFocus
+                      style={{ paddingRight: '2.5rem', width: '100%' }}
                     />
                     {isSearching && (
                       <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-lime)' }} />

@@ -724,7 +724,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                     <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                       Search Catalog Track
                     </label>
-                    <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'relative', width: '100%' }}>
                       <input
                         type="text"
                         className="input-neo"
@@ -732,7 +732,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         value={trackSearchInput}
                         onChange={e => setTrackSearchInput(e.target.value)}
                         required
-                        style={{ paddingRight: '2.5rem' }}
+                        style={{ paddingRight: '2.5rem', width: '100%' }}
                       />
                       {isSearching && (
                         <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-lime)' }} />
