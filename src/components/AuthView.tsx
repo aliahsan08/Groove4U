@@ -337,6 +337,20 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
             <Headphones size={15} /> Continue as Guest
           </button>
         </div>
+
+        {/* Explicit Content Notice */}
+        <div style={{ marginTop: '0.85rem', width: '100%', maxWidth: '460px', textAlign: 'center' }}>
+          <p style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.725rem',
+            color: 'var(--text-muted)',
+            margin: 0,
+            lineHeight: 1.4,
+            opacity: 0.85
+          }}>
+            Note: Explicit (E) rated songs & artwork are included in catalog
+          </p>
+        </div>
       </div>
 
       {/* Bottom Green Banner with Animated Audio Equalizer Visualizer (Shown only on Phone) */}
