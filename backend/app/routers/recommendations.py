@@ -1,6 +1,8 @@
 import math
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, Query
+import re
+import difflib
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from qdrant_client.http import models as qmodels
