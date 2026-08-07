@@ -44,7 +44,6 @@ class MusicMetadataService:
         })
 
         self._connect_qdrant()
-        self._load_track_mappings()
 
     def _connect_qdrant(self):
         """Connect to Qdrant using env vars / config."""
@@ -83,30 +82,8 @@ class MusicMetadataService:
             except Exception as e:
                 print(f"[MetadataService] Qdrant connection failed: {e}")
 
-    def _load_track_mappings(self):
-        """Loads track2idx mapping dict from model artifacts for O(1) point ID lookups."""
-        import pickle
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        backend_dir = os.path.dirname(os.path.dirname(curr_dir))
-        project_root = os.path.dirname(backend_dir)
-
-        possible_dirs = [
-            os.path.join(project_root, "models", "Two Tower NN"),
-            os.path.join(backend_dir, "models", "Two Tower NN"),
-            os.path.join(curr_dir, "models", "Two Tower NN")
-        ]
-
-        for d in possible_dirs:
-            mp_path = os.path.join(d, "mappings.pkl")
-            if os.path.exists(mp_path):
-                try:
-                    with open(mp_path, "rb") as f:
-                        mp = pickle.load(f)
-                    self._track2idx = mp.get("track2idx", {})
-                    print(f"[MetadataService] Loaded track2idx mappings with {len(self._track2idx)} tracks")
-                    break
-                except Exception as e:
-                    print(f"[MetadataService] Error loading mappings.pkl: {e}")
+    def _load_mappings(self):
+        self._track2idx = {}
 
     # ──────────────────────────────────────────────
     # Text Normalization

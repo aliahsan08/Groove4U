@@ -635,12 +635,9 @@ export function App() {
         fontSize: '0.8rem',
         textAlign: 'center'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', maxWidth: '1350px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '1350px', margin: '0 auto' }}>
           <div>
             GROOVE4U SYSTEM © 2026 // MUSIC DISCOVERY & PLAYLIST DECK
-          </div>
-          <div style={{ color: 'var(--accent-lime)' }}>
-            Powered by Groove4U AI Engine
           </div>
         </div>
       </footer>

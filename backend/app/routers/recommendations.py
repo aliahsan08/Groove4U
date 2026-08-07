@@ -7,7 +7,6 @@ from qdrant_client.http import models as qmodels
 from app.auth import get_current_user
 from app.database import supabase
 from app.services.recommendation_service import recommendation_engine
-from app.services.bloom_filter import bloom_filter_service
 from app.services.metadata_enrichment import metadata_service, normalize_artist_name
 from app.services.itunes_service import itunes_service
 
@@ -16,7 +15,6 @@ router = APIRouter(prefix="/api", tags=["Recommendation Engine & Catalog"])
 # Startup catalog initialization
 @router.on_event("startup")
 async def startup_event():
-    bloom_filter_service.load_catalog()
     recommendation_engine.initialize()
 
 
@@ -585,79 +583,239 @@ async def enrich_all_metadata(body: EnrichCoversRequest):
 @router.get("/catalog/check")
 async def check_catalog_bloom_filter(query: str = Query(..., min_length=2)):
     """
-    O(1) Bloom Filter Membership Test for "Song — Artist" string.
+    100% Supabase DB Membership Check for track, artist, or genre string.
     """
-    exists = bloom_filter_service.contains(query)
+    q_clean = query.strip()
+    if len(q_clean) < 2:
+        return {"query": query, "exists": False, "message": "Query too short"}
+
+    # Check tracks, artists, or genres in Supabase
+    t_res = supabase.table("tracks").select("track_id").ilike("title", f"%{q_clean}%").limit(1).execute()
+    if t_res.data:
+        return {"query": query, "exists": True, "message": "Found in Supabase catalog"}
+
+    a_res = supabase.table("artists").select("artist_id").ilike("artist_name", f"%{q_clean}%").limit(1).execute()
+    if a_res.data:
+        return {"query": query, "exists": True, "message": "Found in Supabase artists"}
+
+    g_res = supabase.table("genres").select("genre_id").ilike("genre_name", f"%{q_clean}%").limit(1).execute()
+    exists = bool(g_res.data)
     return {
         "query": query,
         "exists": exists,
-        "message": "Song exists in catalog" if exists else "Song not found in 90,383 catalog"
+        "message": "Found in Supabase catalog" if exists else "Not found in Supabase catalog"
     }
 
 
 @router.get("/catalog/search")
-async def search_catalog_autocomplete(q: str = Query(..., min_length=2), limit: int = 10):
+async def search_catalog_autocomplete(
+    q: str = Query(..., min_length=2),
+    category: str = Query("tracks", description="Category to search: 'tracks', 'artists', or 'genres'"),
+    limit: int = 10
+):
     """
-    Fast prefix/sub-phrase autocomplete across all 90,383 catalog track strings.
+    100% Supabase PostgreSQL Autocomplete Search with pg_trgm & exact/prefix/substring/fuzzy priority ordering.
+    Returns minimal payload (track_id, qdrant_point_id, title, artist, cover_url).
     """
-    results = bloom_filter_service.search_autocomplete(q, limit=limit)
+    raw_q = q.strip()
+    q_clean = re.sub(r'[^\w\s]', '', raw_q.lower()).strip()
+    q_tokens = [t for t in q_clean.split() if len(t) >= 1]
+    if not q_tokens or len(q_clean) < 2:
+        return {"query": q, "category": category, "results": [], "items": []}
+
+    try:
+        # First try custom RPC if pg_trgm search function exists
+        rpc_res = supabase.rpc("search_catalog_trgm", {"search_query": raw_q, "result_limit": limit}).execute()
+        if rpc_res.data and len(rpc_res.data) > 0:
+            formatted_results = []
+            items_payload = []
+            for row in rpc_res.data:
+                t_title = row.get("title", "").strip()
+                art_name = row.get("artist", "").strip()
+                fmt = f"{t_title} — {art_name}" if art_name else t_title
+                formatted_results.append(fmt)
+                items_payload.append({
+                    "track_id": row.get("track_id"),
+                    "qdrant_point_id": row.get("qdrant_point_id"),
+                    "title": t_title,
+                    "artist": art_name,
+                    "cover_url": row.get("cover_url"),
+                    "formatted": fmt
+                })
+            return {"query": q, "category": category, "results": formatted_results, "items": items_payload}
+    except Exception:
+        pass
+
+    candidates = []
+    seen = set()
+
+    def add_candidate(t_id, q_id, title, artist, cover):
+        if not title or not title.strip():
+            return
+        t_clean = title.strip()
+        a_clean = artist.strip() if artist else "Unknown Artist"
+        key = (t_clean.lower(), a_clean.lower())
+        if key in seen:
+            return
+
+        combined_low = re.sub(r'[^\w\s]', '', f"{t_clean} {a_clean}".lower())
+
+        # Globalized multi-token check: Ensure all query tokens are present in combined (title + artist)
+        if category == "tracks" and len(q_tokens) > 1:
+            if not all(tok in combined_low for tok in q_tokens):
+                return
+
+        seen.add(key)
+        t_low = t_clean.lower()
+        a_low = a_clean.lower()
+
+        if q_clean in combined_low or q_clean in t_low or q_clean in a_low:
+            rank = 1.0
+        elif combined_low.startswith(q_clean) or t_low.startswith(q_clean) or a_low.startswith(q_clean):
+            rank = 1.5
+        elif any(tok in combined_low for tok in q_tokens):
+            rank = 2.0
+        else:
+            score = max(
+                difflib.SequenceMatcher(None, q_clean, t_low).ratio(),
+                difflib.SequenceMatcher(None, q_clean, a_low).ratio()
+            )
+            rank = 3.0 - score
+
+        fmt = f"{t_clean} — {a_clean}" if category == "tracks" else t_clean
+        candidates.append({
+            "track_id": t_id,
+            "qdrant_point_id": q_id,
+            "title": t_clean,
+            "artist": a_clean,
+            "cover_url": cover,
+            "formatted": fmt,
+            "rank": rank
+        })
+
+    try:
+        if category == "artists":
+            a_res = supabase.table("artists").select("artist_id, artist_name").ilike("artist_name", f"%{q_tokens[0]}%").limit(limit * 3).execute()
+            for r in (a_res.data or []):
+                add_candidate(None, None, r.get("artist_name", ""), "", None)
+        elif category == "genres":
+            g_res = supabase.table("genres").select("genre_id, genre_name").ilike("genre_name", f"%{q_tokens[0]}%").limit(limit * 3).execute()
+            for r in (g_res.data or []):
+                add_candidate(None, None, r.get("genre_name", ""), "", None)
+        else:
+            # Query tracks by each token on title and artist
+            for tok in q_tokens:
+                if len(tok) < 2 and len(q_tokens) > 1:
+                    continue
+                t_res = supabase.table("tracks").select("track_id, qdrant_point_id, title, cover_url, artists(artist_name)").ilike("title", f"%{tok}%").limit(limit * 3).execute()
+                for r in (t_res.data or []):
+                    art_obj = r.get("artists")
+                    art_name = art_obj.get("artist_name", "") if isinstance(art_obj, dict) else "Unknown Artist"
+                    add_candidate(r.get("track_id"), r.get("qdrant_point_id"), r.get("title"), art_name, r.get("cover_url"))
+
+                a_res = supabase.table("artists").select("artist_id, artist_name, tracks(track_id, qdrant_point_id, title, cover_url)").ilike("artist_name", f"%{tok}%").limit(limit * 2).execute()
+                for r in (a_res.data or []):
+                    art_name = r.get("artist_name", "Unknown Artist")
+                    for tr in (r.get("tracks") or []):
+                        add_candidate(tr.get("track_id"), tr.get("qdrant_point_id"), tr.get("title"), art_name, tr.get("cover_url"))
+    except Exception as err:
+        print(f"[Supabase Search Error]: {err}")
+
+    # Sort candidates by match priority rank and title length
+    candidates.sort(key=lambda x: (x["rank"], len(x["title"])))
+    final_items = candidates[:limit]
+    formatted_results = [c["formatted"] if category == "tracks" else c["title"] for c in final_items]
+
     return {
         "query": q,
-        "results": results
+        "category": category,
+        "results": formatted_results,
+        "items": final_items
     }
 
 
 @router.post("/catalog/add_new_track")
 async def add_new_track(payload: AddTrackRequest, current_user: Dict[str, Any] = Depends(get_current_user)):
     """
-    Adds a new/unseen song:
+    Adds a custom song:
     1. Runs 3-tier enrichment (Last.fm -> Discogs -> Groq LLM).
-    2. Runs Item Tower -> 128-dim item vector (via Gradio Space).
-    3. Adds "Song — Artist" to Bloom Filter.
-    4. Upserts vector to Qdrant.
+    2. Rechecks if track already exists in Supabase DB.
+    3. If NEW: Runs Item Tower -> 128-dim item vector (via Gradio Space) and saves to Qdrant + Supabase tracks/artists tables.
     """
     try:
-        track_str = f"{payload.title.strip()} — {payload.artist.strip()}"
+        raw_title = payload.title.strip()
+        raw_artist = payload.artist.strip()
         
         # 1. Run 3-tier metadata pipeline
-        enriched = await metadata_service.enrich_track_metadata(payload.title, payload.artist)
-        
-        # 2. Run Item Tower for 128-dim embedding (via Gradio Space)
+        enriched = await metadata_service.enrich_track_metadata(raw_title, raw_artist)
+        e_title = enriched.get("title", raw_title).strip()
+        e_artist = enriched.get("artist", raw_artist).strip()
+        track_str = f"{e_title} — {e_artist}"
+
+        # 2. RECHECK IF SONG ALREADY EXISTS IN SUPABASE DB
+        try:
+            db_check = supabase.table("tracks").select("track_id, qdrant_point_id, title, cover_url, artists(artist_name)").ilike("title", e_title).limit(20).execute()
+            if db_check.data:
+                for row in db_check.data:
+                    art_obj = row.get("artists")
+                    art_name = art_obj.get("artist_name", "") if isinstance(art_obj, dict) else ""
+                    if art_name.strip().lower() == e_artist.lower() or not e_artist:
+                        print(f"[Catalog] Track '{track_str}' already exists in Supabase. Skipping Item Tower & Qdrant creation.")
+                        return {
+                            "status": "already_exists",
+                            "track_str": track_str,
+                            "enriched": enriched,
+                            "qdrant_point_id": row.get("qdrant_point_id")
+                        }
+        except Exception as check_ex:
+            print(f"[Catalog] Supabase pre-check notice: {check_ex}")
+
+        # 3. IF NEW: Get or Create Artist in Supabase
+        primary_a_id = 1
+        try:
+            norm_art = e_artist.lower()
+            a_res = supabase.table("artists").upsert({"artist_name": e_artist, "normalized_name": norm_art}, on_conflict="normalized_name").execute()
+            if a_res.data:
+                primary_a_id = a_res.data[0]["artist_id"]
+        except Exception as ex:
+            print(f"[Catalog] Notice creating artist in Supabase: {ex}")
+
+        # 4. Run Item Tower for 128-dim embedding (via Gradio Space) ONLY IF NEW
         item_vector = recommendation_engine.embed_new_track(
-            enriched["title"],
-            enriched["artist"],
+            e_title,
+            e_artist,
             enriched.get("tags", []),
             genre=enriched.get("genre")
         )
 
-        # 3. Add to Bloom Filter
-        bloom_filter_service.add(track_str)
+        new_qdrant_id = str(abs(hash(track_str)) % (10**9))
 
-        # 4. Save artist to Supabase artists table if missing
+        # 5. Insert new track into Supabase tracks database
         try:
-            art_clean = payload.artist.strip()
-            norm_art = art_clean.lower()
-            supabase.table("artists").upsert({"artist_name": art_clean, "normalized_name": norm_art}, on_conflict="normalized_name").execute()
-            print(f"[Catalog] Synced artist '{art_clean}' to Supabase artists table.")
-        except Exception as ex:
-            print(f"[Catalog] Notice syncing artist to Supabase: {ex}")
+            supabase.table("tracks").insert({
+                "title": e_title,
+                "artist_id": primary_a_id,
+                "qdrant_point_id": new_qdrant_id,
+                "cover_url": enriched.get("cover_url") or enriched.get("coverUrl")
+            }).execute()
+        except Exception as sb_ins_ex:
+            print(f"[Catalog] Notice inserting track to Supabase: {sb_ins_ex}")
 
-        # 5. Upsert vector to Qdrant groove4u_items collection if connected
+        # 6. Save vector to Qdrant groove4u_items collection if connected
         if recommendation_engine.qdrant_client:
             try:
-                point_id = abs(hash(track_str)) % (10**9)
                 recommendation_engine.qdrant_client.upsert(
                     collection_name="groove4u_items",
                     points=[
                         qmodels.PointStruct(
-                            id=point_id,
+                            id=int(new_qdrant_id),
                             vector=item_vector.tolist(),
                             payload={
                                 "track_id": track_str,
                                 "track_id_str": track_str,
-                                "track": enriched["title"],
-                                "title": enriched["title"],
-                                "artist": enriched["artist"],
+                                "track": e_title,
+                                "title": e_title,
+                                "artist": e_artist,
                                 "genre": enriched.get("genre", "Pop"),
                                 "year": enriched.get("year", 2024),
                                 "cover_url": enriched.get("cover_url", ""),
@@ -669,7 +827,7 @@ async def add_new_track(payload: AddTrackRequest, current_user: Dict[str, Any] =
                         )
                     ]
                 )
-                print(f"[Catalog] [OK] Upserted custom track vector to Qdrant 'groove4u_items': {track_str}")
+                print(f"[Catalog] [OK] Upserted NEW custom track vector to Qdrant 'groove4u_items': {track_str}")
             except Exception as e:
                 print(f"[Catalog] Qdrant upsert notice: {e}")
 
@@ -687,8 +845,6 @@ async def add_new_track(payload: AddTrackRequest, current_user: Dict[str, Any] =
                 "title": payload.title.strip(),
                 "artist": payload.artist.strip(),
                 "genre": "Music",
-                "cover_url": "",
-                "coverUrl": "",
                 "preview_url": "",
                 "previewUrl": "",
                 "tags": []

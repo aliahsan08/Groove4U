@@ -30,8 +30,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   return (
     <div style={{ padding: '2.5rem 1.5rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ marginBottom: '2.5rem' }}>
-        <span className="badge-neo badge-lime">USER IDENTITY & METRICS</span>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.4rem' }}>
+        <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>USER IDENTITY & METRICS</span>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem' }}>
           USER <span style={{ color: 'var(--accent-lime)' }}>PROFILE</span>
         </h2>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>

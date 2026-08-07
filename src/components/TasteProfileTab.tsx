@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TasteProfileItem, Track, UserProfileInfo } from '../types/music';
-import { Star, Plus, Trash2, CheckCircle, AlertCircle, Loader2, ArrowLeft, Maximize2, Play, Pause, Music, User, Sparkles, Image as ImageIcon, X, ChevronDown } from 'lucide-react';
+import { Star, Plus, Trash2, CheckCircle, AlertCircle, Loader2, ArrowLeft, Maximize2, Play, Pause, Music, User, Sparkles, Image as ImageIcon, X, ChevronDown, Search, ArrowUpDown } from 'lucide-react';
 import { fetchOnDemandPreviewUrl } from '../services/api';
 import { RAMMetadataCache } from '../services/metadataCache';
 import { ArtworkModal } from './ArtworkModal';
 import { MarqueeText } from './MarqueeText';
+import { SortMenu } from './SortMenu';
 import { findOrCreateArtist, searchGenresFromDB, validateGenreInDB, searchArtistsFromDB } from '../services/supabaseService';
 
 interface TasteProfileTabProps {
@@ -34,7 +35,16 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
   const [isFullDeckView, setIsFullDeckView] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<'songs' | 'genres' | 'artists'>('songs');
   const [isSubTabDropdownOpen, setIsSubTabDropdownOpen] = useState(false);
+  const [customGenre, setCustomGenre] = useState('');
   const [artworkModalTrack, setArtworkModalTrack] = useState<{ artist: string; title: string; coverUrl?: string } | null>(null);
+
+  // Search & Sort States
+  const [fullDeckSearchQuery, setFullDeckSearchQuery] = useState('');
+  const [fullDeckSortBy, setFullDeckSortBy] = useState<'rating-desc' | 'rating-asc' | 'title-asc' | 'title-desc' | 'artist-asc' | 'artist-desc'>('rating-desc');
+  const [genresFilterQuery, setGenresFilterQuery] = useState('');
+  const [genresSortBy, setGenresSortBy] = useState<'name-asc' | 'name-desc'>('name-asc');
+  const [artistsFilterQuery, setArtistsFilterQuery] = useState('');
+  const [artistsSortBy, setArtistsSortBy] = useState<'name-asc' | 'name-desc'>('name-asc');
 
   // Input states
   const [newArtistInput, setNewArtistInput] = useState('');
@@ -179,7 +189,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
       } finally {
         setIsSearching(false);
       }
-    }, 250);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [trackSearchInput]);
@@ -285,21 +295,53 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
 
     return (
       <div style={{ padding: '2.5rem 1.5rem', maxWidth: '1350px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <span className="badge-neo badge-lime">DEDICATED VIEW</span>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.4rem' }}>
-              ALL RATED SONGS <span style={{ color: 'var(--accent-lime)' }}>({tasteItems.length})</span>
-            </h2>
-          </div>
+        <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-start' }}>
           <button
             className="btn-neo btn-neo-lime"
             onClick={() => setIsFullDeckView(false)}
-            style={{ padding: '0.75rem 1.25rem' }}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
           >
-            <ArrowLeft size={18} /> BACK TO TASTE PROFILE
+            <ArrowLeft size={18} /> <span className="back-btn-text-full">BACK TO TASTE PROFILE</span><span className="back-btn-text-short">Back</span>
           </button>
         </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <div>
+            <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>DEDICATED VIEW</span>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem' }}>
+              ALL RATED SONGS <span style={{ color: 'var(--accent-lime)' }}>({tasteItems.length})</span>
+            </h2>
+          </div>
+        </div>
+
+        {/* Controls Bar: Search & Sort for Full Deck View */}
+        {hydratedItems.length > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', alignItems: 'center', width: '100%' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                className="input-neo"
+                placeholder="Search rated songs, artists, genres..."
+                value={fullDeckSearchQuery}
+                onChange={e => setFullDeckSearchQuery(e.target.value)}
+                style={{ paddingLeft: '2.3rem', width: '100%', height: '42px' }}
+              />
+            </div>
+            <SortMenu
+              value={fullDeckSortBy}
+              onChange={val => setFullDeckSortBy(val as any)}
+              options={[
+                { label: 'Highest Rated', value: 'rating-desc' },
+                { label: 'Lowest Rated', value: 'rating-asc' },
+                { label: 'Title (A-Z)', value: 'title-asc' },
+                { label: 'Title (Z-A)', value: 'title-desc' },
+                { label: 'Artist (A-Z)', value: 'artist-asc' },
+                { label: 'Artist (Z-A)', value: 'artist-desc' }
+              ]}
+            />
+          </div>
+        )}
 
         {hydratedItems.length === 0 ? (
           <div className="tactile-card" style={{ padding: '4rem 1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
@@ -307,7 +349,24 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-            {hydratedItems.map(item => (
+            {hydratedItems
+              .filter(item => {
+                if (!fullDeckSearchQuery.trim()) return true;
+                const q = fullDeckSearchQuery.toLowerCase();
+                return item.title.toLowerCase().includes(q) ||
+                  item.artist.toLowerCase().includes(q) ||
+                  item.genre.toLowerCase().includes(q);
+              })
+              .sort((a, b) => {
+                if (fullDeckSortBy === 'rating-desc') return b.rating - a.rating;
+                if (fullDeckSortBy === 'rating-asc') return a.rating - b.rating;
+                if (fullDeckSortBy === 'title-asc') return a.title.localeCompare(b.title);
+                if (fullDeckSortBy === 'title-desc') return b.title.localeCompare(a.title);
+                if (fullDeckSortBy === 'artist-asc') return a.artist.localeCompare(b.artist);
+                if (fullDeckSortBy === 'artist-desc') return b.artist.localeCompare(a.artist);
+                return 0;
+              })
+              .map(item => (
               <div
                 key={item.id}
                 className="tactile-card"
@@ -562,8 +621,8 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
   return (
     <div style={{ padding: '2.5rem 1.5rem', maxWidth: '1350px', margin: '0 auto' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <span className="badge-neo badge-lime">ALGORITHM VECTOR CALIBRATION</span>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.4rem' }}>
+        <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>ALGORITHM VECTOR CALIBRATION</span>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem' }}>
           TASTE PROFILE <span style={{ color: 'var(--accent-lime)' }}>DECK</span>
         </h2>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
@@ -602,7 +661,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
       <div className="sub-tabs-mobile" style={{ marginBottom: '2rem', position: 'relative' }}>
         <button 
           className="btn-neo"
-          style={{ width: '100%', justifyContent: 'space-between', backgroundColor: 'var(--bg-secondary)', padding: '1rem' }}
+          style={{ width: '100%', justifyContent: 'space-between', backgroundColor: 'var(--bg-secondary)', padding: '1rem', color: 'var(--text-main)' }}
           onClick={() => setIsSubTabDropdownOpen(!isSubTabDropdownOpen)}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -748,13 +807,13 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                     flexDirection: 'column',
                     gap: '0.75rem'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', color: 'var(--accent-lime)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 800 }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', color: 'var(--accent-lime)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 800 }}>
                       <button
                         type="button"
                         onClick={() => setShowCustomFallback(false)}
                         style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 800 }}
                       >
-                        ← BACK TO SEARCH
+                        <span className="back-btn-text-full">← BACK TO SEARCH</span><span className="back-btn-text-short">← Back</span>
                       </button>
                     </div>
 
@@ -855,17 +914,9 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                     return (
                       <div
                         key={item.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '0.85rem 1rem',
-                          backgroundColor: 'var(--bg-primary)',
-                          border: '2px solid var(--border-color)',
-                          gap: '0.75rem'
-                        }}
+                        className="taste-card-layout tactile-card"
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 0' }}>
+                        <div className="taste-track-info">
                           <div style={{
                             width: '40px',
                             height: '40px',
@@ -894,13 +945,13 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                           </div>
                         </div>
 
-                        <div className="action-buttons-container" style={{ alignItems: 'center', flexShrink: 0 }}>
+                        <div className="taste-actions-left">
                           {(() => {
                             const isPlayingThis = currentPlayingTrackId ? (currentPlayingTrackId === item.id && isPlaying) : (playingTrackId === item.id);
                             return (
                               <>
                                 <button
-                                  className="btn-neo"
+                                  className="btn-neo taste-play-btn"
                                   style={{
                                     padding: '0.3rem 0.6rem',
                                     fontSize: '0.75rem',
@@ -916,15 +967,14 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                                   {loadingPreviewId === item.id ? (
                                     <Loader2 size={13} className="animate-spin" />
                                   ) : isPlayingThis ? (
-                                    <Pause size={13} />
+                                    <><Pause size={13} /> PAUSE</>
                                   ) : (
-                                    <Play size={13} />
+                                    <><Play size={13} /> PLAY</>
                                   )}
-                                  {loadingPreviewId === item.id ? 'LOADING...' : isPlayingThis ? 'PAUSE' : 'PLAY'}
                                 </button>
 
                                 <button
-                                  className="btn-neo"
+                                  className="btn-neo taste-artwork-btn"
                                   style={{
                                     padding: '0.3rem 0.6rem',
                                     fontSize: '0.75rem',
@@ -942,8 +992,10 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                               </>
                             );
                           })()}
+                        </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div className="taste-actions-middle">
+                          <div className="taste-rating-dropdown" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                             <Star size={16} style={{ color: 'var(--accent-lime)', fill: 'var(--accent-lime)' }} />
                             <select
                               value={item.rating}
@@ -963,7 +1015,9 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                               ))}
                             </select>
                           </div>
+                        </div>
 
+                        <div className="taste-actions-right">
                           <button
                             onClick={() => onDeleteTasteItem(item.id)}
                             style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem' }}
@@ -1078,8 +1132,40 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                 NO FAVORITE GENRES ADDED YET. TYPE A GENRE ABOVE TO ADD.
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-                {(userProfile?.topGenres || []).map(g => (
+              <div>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', alignItems: 'center', width: '100%' }}>
+                  <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                    <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input
+                      type="text"
+                      className="input-neo"
+                      placeholder="Filter top genres..."
+                      value={genresFilterQuery}
+                      onChange={e => setGenresFilterQuery(e.target.value)}
+                      style={{ paddingLeft: '2.3rem', width: '100%', height: '42px' }}
+                    />
+                  </div>
+                  <SortMenu
+                    value={genresSortBy}
+                    onChange={val => setGenresSortBy(val as any)}
+                    options={[
+                      { label: 'Sort: A-Z', value: 'name-asc' },
+                      { label: 'Sort: Z-A', value: 'name-desc' }
+                    ]}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                  {(userProfile?.topGenres || [])
+                    .filter(g => {
+                      if (!genresFilterQuery.trim()) return true;
+                      return g.toLowerCase().includes(genresFilterQuery.toLowerCase());
+                    })
+                    .sort((a, b) => {
+                      if (genresSortBy === 'name-asc') return a.localeCompare(b);
+                      return b.localeCompare(a);
+                    })
+                    .map(g => (
                   <div
                     key={g}
                     style={{
@@ -1105,6 +1191,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                     </button>
                   </div>
                 ))}
+                </div>
               </div>
             )}
           </div>
@@ -1181,8 +1268,40 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                 NO FAVORITE ARTISTS ADDED YET. ADD ARTISTS ABOVE.
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-                {(userProfile?.topArtists || []).map(artist => (
+              <div>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', alignItems: 'center', width: '100%' }}>
+                  <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                    <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input
+                      type="text"
+                      className="input-neo"
+                      placeholder="Filter top artists..."
+                      value={artistsFilterQuery}
+                      onChange={e => setArtistsFilterQuery(e.target.value)}
+                      style={{ paddingLeft: '2.3rem', width: '100%', height: '42px' }}
+                    />
+                  </div>
+                  <SortMenu
+                    value={artistsSortBy}
+                    onChange={val => setArtistsSortBy(val as any)}
+                    options={[
+                      { label: 'Sort: A-Z', value: 'name-asc' },
+                      { label: 'Sort: Z-A', value: 'name-desc' }
+                    ]}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                  {(userProfile?.topArtists || [])
+                    .filter(a => {
+                      if (!artistsFilterQuery.trim()) return true;
+                      return a.toLowerCase().includes(artistsFilterQuery.toLowerCase());
+                    })
+                    .sort((a, b) => {
+                      if (artistsSortBy === 'name-asc') return a.localeCompare(b);
+                      return b.localeCompare(a);
+                    })
+                    .map(artist => (
                   <div
                     key={artist}
                     style={{
@@ -1208,6 +1327,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                     </button>
                   </div>
                 ))}
+                </div>
               </div>
             )}
           </div>
@@ -1268,17 +1388,9 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                 return (
                   <div
                     key={item.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '0.85rem 1rem',
-                      backgroundColor: 'var(--bg-primary)',
-                      border: '2px solid var(--border-color)',
-                      gap: '0.75rem'
-                    }}
+                    className="taste-card-layout tactile-card"
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 0' }}>
+                    <div className="taste-track-info">
                       {/* Clickable Album Cover Thumbnail */}
                       <div
                         style={{
@@ -1313,10 +1425,9 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         />
                       </div>
                     </div>
-
-                    <div className="action-buttons-container" style={{ alignItems: 'center', flexShrink: 0 }}>
+                    <div className="taste-actions-left">
                       <button
-                        className="btn-neo"
+                        className="btn-neo taste-play-btn"
                         style={{
                           padding: '0.3rem 0.6rem',
                           fontSize: '0.75rem',
@@ -1332,31 +1443,32 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         {loadingPreviewId === item.id ? (
                           <Loader2 size={13} className="animate-spin" />
                         ) : isPlayingThis ? (
-                          <Pause size={13} />
+                          <><Pause size={13} /> PAUSE</>
                         ) : (
-                          <Play size={13} />
+                          <><Play size={13} /> PLAY</>
                         )}
-                        {loadingPreviewId === item.id ? 'LOADING...' : isPlayingThis ? 'PAUSE' : 'PLAY'}
                       </button>
 
-                      {/* Explicit Bright Lime View Artwork Button */}
                       <button
-                        className="btn-neo btn-neo-lime"
+                        className="btn-neo taste-artwork-btn"
                         style={{
-                          padding: '0.35rem 0.75rem',
+                          padding: '0.3rem 0.6rem',
                           fontSize: '0.75rem',
+                          backgroundColor: '#0D0E12',
+                          color: '#FFFFFF',
+                          border: '2px solid #FFFFFF',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.35rem',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0
+                          gap: '0.3rem'
                         }}
                         onClick={() => setArtworkModalTrack({ artist: item.artist, title: item.title, coverUrl: coverUrl })}
                       >
-                        <ImageIcon size={14} /> VIEW ARTWORK
+                        <ImageIcon size={13} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
                       </button>
+                    </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <div className="taste-actions-middle">
+                      <div className="taste-rating-dropdown" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Star size={16} style={{ color: 'var(--accent-lime)', fill: 'var(--accent-lime)' }} />
                         <select
                           value={item.rating}
@@ -1376,7 +1488,9 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                           ))}
                         </select>
                       </div>
+                    </div>
 
+                    <div className="taste-actions-right">
                       <button
                         onClick={() => onDeleteTasteItem(item.id)}
                         style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem' }}

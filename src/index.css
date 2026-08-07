@@ -348,6 +348,7 @@ body {
   border: 2px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   white-space: nowrap;
+  margin-bottom: 0.65rem;
 }
 
 .badge-lime {
@@ -605,9 +606,109 @@ body {
   animation: spinVinyl 5s linear infinite;
 }
 
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.rotating-star {
+  animation: rotateStar 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotateStar {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
 @keyframes spinVinyl {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   AuthView Responsive PC vs Mobile Layout
+   ========================================== */
+.auth-container {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  display: flex;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .auth-container {
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .auth-desktop-left {
+    display: none !important;
+  }
+  .auth-mobile-top,
+  .auth-mobile-bottom {
+    display: flex !important;
+  }
+  .home-desktop-grid {
+    display: none !important;
+  }
+  .home-mobile-carousel {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .auth-container {
+    flex-direction: row;
+  }
+  .auth-mobile-top,
+  .auth-mobile-bottom {
+    display: none !important;
+  }
+  .auth-desktop-left {
+    display: flex !important;
+    width: 50%;
+    background-color: var(--accent-lime);
+    border-right: 3px solid #000000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-desktop-right {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    overflow-y: auto;
+  }
+  .home-mobile-carousel {
+    display: none !important;
+  }
+  .home-desktop-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+  }
 }
 
 /* 6. Pulse Lime Glow for Audio Player */
@@ -675,12 +776,13 @@ body {
   }
 
   .auth-view-showcase {
-    padding: 2.5rem 1.25rem !important;
+    padding: 1.25rem 1rem !important;
     min-height: auto !important;
+    gap: 1rem !important;
   }
 
   .auth-view-form-card {
-    padding: 2rem 1.25rem !important;
+    padding: 2rem 1rem !important;
   }
 
   /* Editorial & Recommendations Deck Grid for Mobile */
@@ -740,7 +842,6 @@ body {
   }
 }
 
-/* Mobile Sidebar & Navigation Overrides */
 @media (max-width: 768px) {
   .desktop-nav { display: none !important; }
   .desktop-controls { display: none !important; }
@@ -748,12 +849,48 @@ body {
   
   .main-header-grid {
     grid-template-columns: 1fr auto !important;
+    padding: 0.5rem 0.85rem !important;
+    gap: 0.5rem !important;
+  }
+  .brand-logo-container {
+    gap: 0.4rem !important;
+  }
+  .brand-logo-icon-box {
+    padding: 0.35rem !important;
+  }
+  .brand-radio-icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .brand-logo-h1 {
+    font-size: 1.25rem !important;
+  }
+  .brand-logo-sub {
+    font-size: 0.55rem !important;
+  }
+
+  .back-btn-text-full {
+    display: none !important;
+  }
+  .back-btn-text-short {
+    display: inline !important;
+  }
+
+  .hide-on-mobile-in-playlist {
+    display: none !important;
   }
 }
 
 @media (min-width: 769px) {
   .mobile-menu-btn { display: none !important; }
   .mobile-sidebar { display: none !important; }
+
+  .back-btn-text-full {
+    display: inline !important;
+  }
+  .back-btn-text-short {
+    display: none !important;
+  }
 }
 
 .mobile-sidebar {
@@ -761,7 +898,8 @@ body {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 280px;
+  width: 320px;
+  max-width: 85vw;
   background-color: var(--bg-secondary);
   border-left: 2px solid var(--border-color);
   z-index: 1000;
@@ -834,3 +972,132 @@ body {
   display: flex;
   gap: 0.5rem;
 }
+
+/* Playlist & Taste Profile Mobile Card Layouts */
+.playlist-card-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+.playlist-track-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  flex: 1 1 0;
+}
+.playlist-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.playlist-actions-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.taste-card-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  gap: 0.75rem;
+}
+.taste-track-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1 1 0;
+}
+.taste-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.taste-actions-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.playlist-actions-middle {
+  display: flex;
+}
+.taste-actions-middle {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .playlist-card-layout {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-areas: 
+      "info info"
+      "play play"
+      "artwork taste" !important;
+    gap: 0.5rem !important;
+    padding: 1rem !important;
+    position: relative !important;
+  }
+  .taste-card-layout {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-areas: 
+      "info info"
+      "play play"
+      "artwork rating" !important;
+    gap: 0.5rem !important;
+    padding: 1rem !important;
+    position: relative !important;
+  }
+  
+  .playlist-track-info { grid-area: info !important; }
+  .taste-track-info { grid-area: info !important; padding-right: 2rem !important; }
+  
+  .playlist-actions-left, .taste-actions-left, .taste-actions-middle, .playlist-actions-middle {
+    display: contents !important;
+  }
+  
+  .playlist-play-btn, .taste-play-btn {
+    grid-area: play !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  .playlist-artwork-btn, .taste-artwork-btn {
+    grid-area: artwork !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  .playlist-taste-btn {
+    grid-area: taste !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  .taste-rating-dropdown {
+    grid-area: rating !important;
+    width: 100% !important;
+    justify-content: center !important;
+    display: flex !important;
+  }
+  .taste-rating-dropdown > select {
+    flex: 1 !important;
+  }
+  
+  .taste-actions-right, .playlist-actions-right {
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+  }
+}
+

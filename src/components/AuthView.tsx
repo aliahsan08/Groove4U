@@ -87,161 +87,87 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
   };
 
   return (
-    <div className={isDarkMode ? '' : 'light-mode'} style={{
-      minHeight: '100vh',
-      backgroundColor: 'var(--bg-primary)',
-      color: 'var(--text-main)',
-      display: 'flex',
-      alignItems: 'stretch',
-      justifyContent: 'center',
-      boxSizing: 'border-box'
-    }}>
-      {/* Full Grid Container split 50/50 */}
-      <div className="auth-view-grid" style={{
-        width: '100%',
-        minHeight: '100vh',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-      }}>
-        {/* Left Half: Site Accent Lime Green with Subtle Decorative Components */}
-        <div className="auth-view-showcase" style={{
-          backgroundColor: 'var(--accent-lime)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Subtle Background Geometric Accents */}
-          <div style={{
-            position: 'absolute',
-            top: '-50px',
-            left: '-50px',
-            width: '200px',
-            height: '200px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(0,0,0,0.06)',
-            pointerEvents: 'none'
-          }} />
-          <div style={{
-            position: 'absolute',
-            bottom: '-80px',
-            right: '-80px',
-            width: '300px',
-            height: '300px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(0,0,0,0.06)',
-            pointerEvents: 'none'
-          }} />
+    <div className={`auth-container ${isDarkMode ? '' : 'light-mode'}`}>
+      {/* DESKTOP LEFT SIDE PANEL: Whole Green Card with Groove4U Logo & Music Equalizer */}
+      <div className="auth-desktop-left">
+        {/* Background Decorative Circles */}
+        <div style={{ position: 'absolute', top: '-60px', left: '-60px', width: '240px', height: '240px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.06)', pointerEvents: 'none' }} />
 
-          {/* High Contrast Logo Card */}
+        {/* Center Content Box: Logo Card & Music Equalizer Bar (No CD & Lesser spacing) */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem', zIndex: 2 }}>
+          {/* Black Rectangular Logo Card */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1.25rem',
-            backgroundColor: '#0D0E12',
-            padding: '1.25rem 2.5rem',
-            border: '3px solid #000000',
-            boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-            borderRadius: '4px',
-            marginBottom: '2.5rem',
-            zIndex: 2
+            display: 'flex', alignItems: 'center', gap: '1rem',
+            backgroundColor: '#0D0E12', padding: '0.85rem 3rem', border: '3px solid #000000',
+            boxShadow: '6px 6px 0px rgba(0,0,0,0.3)', borderRadius: '4px'
           }}>
-            <Radio size={44} style={{ color: 'var(--accent-lime)' }} />
-            <h1 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '3.2rem',
-              fontWeight: 900,
-              lineHeight: 1,
-              letterSpacing: '-0.02em',
-              color: '#FFFFFF',
-              margin: 0
-            }}>
+            <Radio size={36} style={{ color: 'var(--accent-lime)' }} />
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.8rem', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.02em', color: '#FFFFFF', margin: 0 }}>
               GROOVE<span style={{ color: 'var(--accent-lime)' }}>4U</span>
             </h1>
           </div>
 
-          {/* Subtle Aesthetics: Spinning Vinyl Graphic, Equalizer & Brand Badge */}
+          {/* Animated Music Equalizer Bar Capsule Pill */}
           <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '2rem',
-            zIndex: 2,
-            marginTop: '1rem'
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', height: '32px',
+            padding: '0.4rem 1.75rem', backgroundColor: 'rgba(0,0,0,0.18)', borderRadius: '20px',
+            border: '2px solid rgba(0,0,0,0.25)'
           }}>
-            {/* Spinning Tactile Vinyl Disk Icon */}
-            <div style={{
-              position: 'relative',
-              width: '120px',
-              height: '120px',
-              borderRadius: '50%',
-              backgroundColor: '#0D0E12',
-              border: '4px solid #000000',
-              boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto'
-            }}>
-              <Disc size={64} className="spinning-vinyl" style={{ color: 'var(--accent-lime)' }} />
-              <div style={{
-                position: 'absolute',
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--accent-lime)',
-                border: '2px solid #000000'
-              }} />
-            </div>
-
-            {/* Subtle Animated Audio Equalizer Visualizer */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-end',
-              gap: '6px',
-              height: '32px',
-              padding: '0.5rem 1.5rem',
-              backgroundColor: 'rgba(0,0,0,0.1)',
-              borderRadius: '20px',
-              border: '2px solid rgba(0,0,0,0.2)'
-            }}>
-              {[1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4].map((barGroup, idx) => (
-                <div
-                  key={idx}
-                  className={`eq-bar eq-bar-${barGroup}`}
-                  style={{
-                    width: '4px',
-                    backgroundColor: '#0D0E12',
-                    borderRadius: '2px',
-                    animationDelay: `${idx * 0.08}s`
-                  }}
-                />
-              ))}
-            </div>
-
-            </div>
+            {[1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1].map((barGroup, idx) => (
+              <div
+                key={idx}
+                className={`eq-bar eq-bar-${barGroup}`}
+                style={{ width: '4px', backgroundColor: '#0D0E12', borderRadius: '2px', animationDelay: `${idx * 0.08}s` }}
+              />
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* Right Half: Auth Form Card */}
-        <div className="auth-view-form-card" style={{
-          backgroundColor: 'var(--bg-primary)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem'
+      {/* MOBILE TOP BANNER (Shown only on Phone) */}
+      <div className="auth-mobile-top" style={{
+        backgroundColor: 'var(--accent-lime)',
+        padding: '0.65rem 1rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottom: '3px solid #000000',
+        position: 'relative',
+        overflow: 'hidden',
+        flexShrink: 0
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.85rem',
+          backgroundColor: '#0D0E12', padding: '0.45rem 1.5rem',
+          border: '3px solid #000000', boxShadow: '3px 3px 0px rgba(0,0,0,0.3)',
+          borderRadius: '4px', zIndex: 2
         }}>
+          <Radio size={26} style={{ color: 'var(--accent-lime)' }} />
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.85rem', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.02em', color: '#FFFFFF', margin: 0 }}>
+            GROOVE<span style={{ color: 'var(--accent-lime)' }}>4U</span>
+          </h1>
+        </div>
+      </div>
+
+      {/* CENTER / RIGHT FORM CARD CONTAINER */}
+      <div className="auth-desktop-right" style={{
+        flex: 1,
+        backgroundColor: 'var(--bg-primary)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '3rem 1.5rem',
+        overflowY: 'auto'
+      }}>
           <div className="tactile-card" style={{
             maxWidth: '460px',
             width: '100%',
             backgroundColor: 'var(--bg-secondary)',
             border: '3px solid var(--border-color)',
             boxShadow: '10px 10px 0px var(--accent-lime)',
-            padding: '2.5rem'
+            padding: mode === 'signup' ? '1.75rem 2rem' : '2.25rem 2rem'
           }}>
             {/* Mode Switcher Tabs */}
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem' }}>
@@ -283,7 +209,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: mode === 'signup' ? '0.85rem' : '1.1rem' }}>
               {mode === 'signup' && (
                 <div>
                   <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
@@ -393,7 +319,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
           </div>
 
           {/* Continue as Guest Button Placed Directly Under the Login Card */}
-          <div style={{ marginTop: '3.5rem', width: '100%', maxWidth: '460px', textAlign: 'center' }}>
+          <div style={{ marginTop: '1.5rem', width: '100%', maxWidth: '460px', textAlign: 'center' }}>
             <button
               type="button"
               className="btn-neo btn-neo-cyan"
@@ -411,6 +337,45 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
               <Headphones size={15} /> Continue as Guest
             </button>
           </div>
+        </div>
+
+      {/* Bottom Green Banner with Animated Audio Equalizer Visualizer (Shown only on Phone) */}
+      <div className="auth-mobile-bottom" style={{
+        backgroundColor: 'var(--accent-lime)',
+        padding: '1.25rem 1rem',
+        minHeight: '64px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderTop: '3px solid #000000',
+        position: 'relative',
+        overflow: 'hidden',
+        flexShrink: 0
+      }}>
+        {/* Subtle Animated Audio Equalizer Visualizer Centered */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          gap: '6px',
+          height: '24px',
+          padding: '0.35rem 1.5rem',
+          backgroundColor: 'rgba(0,0,0,0.12)',
+          borderRadius: '20px',
+          border: '2px solid rgba(0,0,0,0.25)',
+          zIndex: 2
+        }}>
+          {[1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4].map((barGroup, idx) => (
+            <div
+              key={idx}
+              className={`eq-bar eq-bar-${barGroup}`}
+              style={{
+                width: '4px',
+                backgroundColor: '#0D0E12',
+                borderRadius: '2px',
+                animationDelay: `${idx * 0.08}s`
+              }}
+            />
+          ))}
         </div>
       </div>
     </div>

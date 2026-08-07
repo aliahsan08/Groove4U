@@ -147,7 +147,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>
               RECOMMENDATION ENGINE
             </span>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.75rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1.05, margin: 0 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.75rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1.05, marginTop: '0.85rem' }}>
               <span style={{ color: 'var(--accent-lime)' }}>RECOMMEND TRACKS</span>
             </h2>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.4rem', margin: '0.4rem 0 0 0' }}>
@@ -175,15 +175,18 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             </div>
             <button
               className="btn-neo btn-neo-lime"
-              style={{ padding: '0.85rem 1.75rem', fontSize: '1rem', boxShadow: 'var(--shadow-md)' }}
+              style={{ padding: '0.85rem 1.75rem', fontSize: '1rem', boxShadow: 'var(--shadow-md)', minWidth: '170px', justifyContent: 'center' }}
               onClick={() => {
                 setCurrentSlideIndex(0);
                 onGenerateRecommendations(recLimit);
               }}
               disabled={isGenerating}
             >
-              <Sparkles size={18} className={isGenerating ? 'spinning-vinyl' : ''} />
-              {isGenerating ? 'GENERATING...' : 'GENERATE'}
+              {isGenerating ? (
+                <Loader2 size={24} className="animate-spin" />
+              ) : (
+                <><Sparkles size={18} /> GENERATE</>
+              )}
             </button>
           </div>
         </div>
@@ -196,15 +199,69 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         </h3>
       </div>
 
-      {/* Recommendations Cards Grid */}
-      {top5Tracks.length === 0 ? (
+      {/* Recommendations Cards Container */}
+      {isGenerating ? (
+        <div className="tactile-card" style={{ padding: '4rem 2rem', textAlign: 'center', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.25rem', border: '3px solid var(--border-color)', boxShadow: '8px 8px 0px var(--accent-lime)' }}>
+          <div style={{ position: 'relative', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Sparkles size={56} style={{ color: 'var(--accent-lime)' }} className="rotating-star" />
+            <Loader2 size={76} style={{ position: 'absolute', top: 2, left: 2, color: 'var(--accent-cyan)' }} className="animate-spin" />
+          </div>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-lime)', margin: 0, letterSpacing: '-0.02em' }}>
+            GENERATING RECOMMENDATIONS...
+          </h3>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, maxWidth: '420px' }}>
+            Acoustic intelligence engine is ranking candidate tracks based on your taste profile...
+          </p>
+        </div>
+      ) : top5Tracks.length === 0 ? (
         <div className="tactile-card" style={{ padding: '3.5rem 1.5rem', textAlign: 'center' }}>
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 800, margin: 0, color: 'var(--text-muted)' }}>
             No generations yet
           </h3>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+        <>
+          {/* DESKTOP VIEW: Simple Cards Displayed Together in Responsive Grid */}
+          <div className="home-desktop-grid">
+            {top5Tracks.map((rawTrack, index) => {
+              const track = RAMMetadataCache.hydrateTrack(rawTrack);
+              const savedInPlaylists = playlists.filter(pl => pl.tracks.some(t => t.id === track.id));
+              const isSavedAnywhere = savedInPlaylists.length > 0;
+              const isDropdownOpen = openDropdownTrackId === track.id;
+              const coverImage = track.coverUrl || (track as any).cover_url || '';
+              const previewUrl = track.previewUrl || (track as any).preview_url;
+              const isPlayingThis = currentPlayingTrackId ? (currentPlayingTrackId === track.id && isPlaying) : (playingTrackId === track.id);
+
+              return (
+                <div key={track.id} className="tactile-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1.25rem', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <span className="badge-neo badge-red">#{index + 1}</span>
+                      {(isLoggedIn && tasteCount >= 5) && (
+                        <span className="badge-neo badge-lime">CONFIDENCE: {track.matchScore ?? 85}%</span>
+                      )}
+                    </div>
+                    <div style={{ position: 'relative', marginBottom: '1rem', width: '100%', height: '210px', borderRadius: '4px', overflow: 'hidden', border: '2px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {coverImage ? <img src={coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>NO COVER</span>}
+                      <button onClick={() => setArtworkModalTrack({ artist: track.artist, title: track.title, coverUrl: coverImage })} className="btn-neo" style={{ position: 'absolute', top: '12px', right: '12px', backgroundColor: '#0D0E12', color: '#FFFFFF', border: '2px solid #FFFFFF', padding: '0.35rem 0.65rem', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', zIndex: 3 }}>
+                        <ImageIcon size={14} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
+                      </button>
+                      {(previewUrl || loadingPreviewId === track.id) && (
+                        <button onClick={() => handleTogglePlay(track)} className="btn-neo" style={{ position: 'absolute', bottom: '12px', right: '12px', backgroundColor: isPlayingThis ? '#EF4444' : 'var(--accent-lime)', color: isPlayingThis ? '#FFFFFF' : '#000000', padding: '0.5rem 0.85rem', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', zIndex: 2 }}>
+                          {loadingPreviewId === track.id ? <Loader2 size={16} className="animate-spin" /> : isPlayingThis ? <><Pause size={16} /> PAUSE</> : <><Play size={16} /> PLAY</>}
+                        </button>
+                      )}
+                    </div>
+                    <MarqueeText text={track.title} style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }} />
+                    <MarqueeText text={track.artist} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--accent-lime)', fontWeight: 700, margin: 0 }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* MOBILE VIEW: Single Card Deck Carousel View for Phones */}
+          <div className="home-mobile-carousel" style={{ flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '400px', gap: '1rem', marginBottom: '1rem' }}>
             <button
               onClick={() => setCurrentSlideIndex(prev => (prev === 0 ? top5Tracks.length - 1 : prev - 1))}
@@ -589,7 +646,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             })()}
           </div>
         </div>
-      )}
+      </>
+    )}
 
       <ArtworkModal
         isOpen={!!artworkModalTrack}

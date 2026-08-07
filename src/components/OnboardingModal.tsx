@@ -384,6 +384,21 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              <p style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.78rem',
+                color: 'var(--accent-lime)',
+                fontWeight: 700,
+                marginTop: '1rem',
+                padding: '0.6rem 0.8rem',
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px dashed var(--accent-lime)',
+                borderRadius: '4px',
+                lineHeight: 1.4
+              }}>
+                NOTE: Enter at least 5 tracks in taste profile for more meaningful recommendations
+              </p>
             </div>
           )}
         </div>
@@ -426,7 +441,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                  GENERATE RECOMMENDATIONS <ArrowRight size={18} />
+                  <span className="back-btn-text-full">GENERATE RECOMMENDATIONS</span>
+                  <span className="back-btn-text-short">GENERATE</span>
+                  <ArrowRight size={18} />
                 </span>
               )}
             </button>

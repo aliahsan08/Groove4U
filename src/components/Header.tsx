@@ -56,10 +56,11 @@ export const Header: React.FC<HeaderProps> = ({
       }}>
         {/* Left Column: Brand Logo */}
         <div
+          className="brand-logo-container"
           onClick={() => setActiveTab('home')}
           style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', justifySelf: 'start' }}
         >
-          <div style={{
+          <div className="brand-logo-icon-box" style={{
             backgroundColor: 'var(--accent-lime)',
             color: '#FFFFFF',
             padding: '0.5rem',
@@ -69,13 +70,13 @@ export const Header: React.FC<HeaderProps> = ({
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <Radio size={26} />
+            <Radio size={26} className="brand-radio-icon" />
           </div>
           <div>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em', color: 'var(--text-main)' }}>
+            <h1 className="brand-logo-h1" style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em', color: 'var(--text-main)', margin: 0 }}>
               GROOVE<span style={{ color: 'var(--accent-lime)' }}>4U</span>
             </h1>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+            <p className="brand-logo-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0.1rem 0 0 0' }}>
               MUSIC DISCOVERY ENGINE
             </p>
           </div>
@@ -189,7 +190,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`mobile-nav-btn ${activeTab === 'home' ? 'active' : ''}`}
             onClick={() => handleTabClick('home')}
           >
-            <Sparkles size={20} /> Recommendations
+            <Sparkles size={20} style={{ flexShrink: 0 }} /> Recommendations
           </button>
 
           <button
@@ -197,7 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => { if (isLoggedIn) handleTabClick('playlist'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { opacity: 0.7 } : {}}
           >
-            <Music size={20} /> Playlists {!isLoggedIn ? '🔒' : `(${playlistCount})`}
+            <Music size={20} style={{ flexShrink: 0 }} /> Playlists {!isLoggedIn ? '🔒' : `(${playlistCount})`}
           </button>
 
           <button
@@ -205,7 +206,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => { if (isLoggedIn) handleTabClick('taste'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { opacity: 0.7 } : {}}
           >
-            <Star size={20} /> Taste Profile {!isLoggedIn ? '🔒' : `(${tasteCount})`}
+            <Star size={20} style={{ flexShrink: 0 }} /> Taste Profile {!isLoggedIn ? '🔒' : `(${tasteCount})`}
           </button>
 
           <button
@@ -213,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => { if (isLoggedIn) handleTabClick('profile'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { opacity: 0.7 } : {}}
           >
-            <User size={20} /> Profile {!isLoggedIn ? '🔒' : ''}
+            <User size={20} style={{ flexShrink: 0 }} /> Profile {!isLoggedIn ? '🔒' : ''}
           </button>
         </div>
 

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Playlist, Track, TasteProfileItem } from '../types/music';
 import { ALL_GENRES } from '../constants/genres';
-import { Music, Trash2, Download, Plus, Edit2, BookmarkCheck, FolderPlus, Check, Sparkles, PlusCircle, AlertCircle, CheckCircle, Loader2, Play, Pause, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { Music, Trash2, Download, Plus, Edit2, BookmarkCheck, FolderPlus, Check, Sparkles, PlusCircle, AlertCircle, CheckCircle, Loader2, Play, Pause, ArrowLeft, Image as ImageIcon, Search, ArrowUpDown } from 'lucide-react';
 import { fetchOnDemandPreviewUrl } from '../services/api';
 import { RAMMetadataCache } from '../services/metadataCache';
 import { ArtworkModal } from './ArtworkModal';
 import { MarqueeText } from './MarqueeText';
+import { SortMenu } from './SortMenu';
 
 interface PlaylistTabProps {
   playlists: Playlist[];
@@ -49,6 +51,12 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
   const [previewCache, setPreviewCache] = useState<Record<string, string>>({});
   const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(null);
   const [artworkModalTrack, setArtworkModalTrack] = useState<{ artist: string; title: string; coverUrl?: string } | null>(null);
+
+  // Search & Sort States
+  const [mainSearchQuery, setMainSearchQuery] = useState('');
+  const [mainSortBy, setMainSortBy] = useState<'name-asc' | 'name-desc' | 'tracks-desc' | 'tracks-asc'>('name-asc');
+  const [trackSearchQuery, setTrackSearchQuery] = useState('');
+  const [trackSortBy, setTrackSortBy] = useState<'default' | 'title-asc' | 'title-desc' | 'artist-asc' | 'artist-desc'>('default');
 
   useEffect(() => {
     return () => {
@@ -169,7 +177,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
       } finally {
         setIsSearching(false);
       }
-    }, 250);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [trackSearchInput]);
@@ -284,27 +292,31 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
 
   return (
     <div style={{ padding: '2.5rem 1.5rem', maxWidth: '1350px', margin: '0 auto' }}>
+      {/* Top-Left Back Button when an active playlist is selected */}
+      {activePlaylist && (
+        <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-start' }}>
+          <button
+            className="btn-neo btn-neo-lime"
+            onClick={() => setActivePlaylistId('')}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+          >
+            <ArrowLeft size={18} /> <span className="back-btn-text-full">BACK TO ALL PLAYLISTS</span><span className="back-btn-text-short">Back</span>
+          </button>
+        </div>
+      )}
+
       {/* Header Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <span className="badge-neo badge-lime">MULTIPLE PLAYLIST LIBRARY</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.4rem' }}>
+          <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>MULTIPLE PLAYLIST LIBRARY</span>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem' }}>
             MY <span style={{ color: 'var(--accent-lime)' }}>PLAYLISTS</span>
           </h2>
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          {activePlaylist && (
-            <button
-              className="btn-neo btn-neo-lime"
-              onClick={() => setActivePlaylistId('')}
-              style={{ padding: '0.75rem 1.25rem' }}
-            >
-              <ArrowLeft size={18} /> BACK TO ALL PLAYLISTS
-            </button>
-          )}
           <button
-            className="btn-neo btn-neo-cyan"
+            className={`btn-neo btn-neo-cyan ${activePlaylist ? 'hide-on-mobile-in-playlist' : ''}`}
             onClick={() => setShowCreateModal(true)}
             style={{ padding: '0.75rem 1.25rem' }}
           >
@@ -316,8 +328,48 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
       {/* DEFAULT VIEW: Horizontal Playlist Cards Grid when no active playlist is selected */}
       {!activePlaylist ? (
         <div>
+          {/* Controls Bar: Search & Sort for Playlists */}
+          {playlists.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', alignItems: 'center', width: '100%' }}>
+              <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input
+                  type="text"
+                  className="input-neo"
+                  placeholder="Search playlists by name..."
+                  value={mainSearchQuery}
+                  onChange={e => setMainSearchQuery(e.target.value)}
+                  style={{ paddingLeft: '2.3rem', width: '100%', height: '42px' }}
+                />
+              </div>
+              <SortMenu
+                value={mainSortBy}
+                onChange={val => setMainSortBy(val as any)}
+                options={[
+                  { label: 'Name (A-Z)', value: 'name-asc' },
+                  { label: 'Name (Z-A)', value: 'name-desc' },
+                  { label: 'Most Tracks', value: 'tracks-desc' },
+                  { label: 'Fewest Tracks', value: 'tracks-asc' }
+                ]}
+              />
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-            {playlists.map(pl => {
+            {playlists
+              .filter(pl => {
+                if (!mainSearchQuery.trim()) return true;
+                const q = mainSearchQuery.toLowerCase();
+                return pl.name.toLowerCase().includes(q) || (pl.description && pl.description.toLowerCase().includes(q));
+              })
+              .sort((a, b) => {
+                if (mainSortBy === 'name-asc') return a.name.localeCompare(b.name);
+                if (mainSortBy === 'name-desc') return b.name.localeCompare(a.name);
+                if (mainSortBy === 'tracks-desc') return (b.tracks?.length || 0) - (a.tracks?.length || 0);
+                if (mainSortBy === 'tracks-asc') return (a.tracks?.length || 0) - (b.tracks?.length || 0);
+                return 0;
+              })
+              .map(pl => {
               const tracks = RAMMetadataCache.hydrateTrackList(pl.tracks);
               const previewCovers = tracks.map(t => t.coverUrl || (t as any).cover_url).filter(Boolean).slice(0, 4);
 
@@ -467,6 +519,34 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
             </div>
           </div>
 
+          {/* Search & Sort Controls Bar for Specific Playlist Tracks */}
+          {activeTracks.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', alignItems: 'center', width: '100%' }}>
+              <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input
+                  type="text"
+                  className="input-neo"
+                  placeholder="Search tracks by title or artist..."
+                  value={trackSearchQuery}
+                  onChange={e => setTrackSearchQuery(e.target.value)}
+                  style={{ paddingLeft: '2.3rem', width: '100%', height: '42px' }}
+                />
+              </div>
+              <SortMenu
+                value={trackSortBy}
+                onChange={val => setTrackSortBy(val as any)}
+                options={[
+                  { label: 'Default Order', value: 'default' },
+                  { label: 'Title (A-Z)', value: 'title-asc' },
+                  { label: 'Title (Z-A)', value: 'title-desc' },
+                  { label: 'Artist (A-Z)', value: 'artist-asc' },
+                  { label: 'Artist (Z-A)', value: 'artist-desc' }
+                ]}
+              />
+            </div>
+          )}
+
           {/* Active Tracks List */}
           {activeTracks.length === 0 ? (
             <div className="tactile-card" style={{ padding: '3.5rem 1.5rem', textAlign: 'center' }}>
@@ -486,7 +566,24 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {activeTracks.map((rawTrack, idx) => {
+              {activeTracks
+                .filter(rawTrack => {
+                  if (!trackSearchQuery.trim()) return true;
+                  const q = trackSearchQuery.toLowerCase();
+                  const hydrated = RAMMetadataCache.hydrateTrack(rawTrack);
+                  return hydrated.title.toLowerCase().includes(q) || hydrated.artist.toLowerCase().includes(q);
+                })
+                .sort((a, b) => {
+                  if (trackSortBy === 'default') return 0;
+                  const hA = RAMMetadataCache.hydrateTrack(a);
+                  const hB = RAMMetadataCache.hydrateTrack(b);
+                  if (trackSortBy === 'title-asc') return hA.title.localeCompare(hB.title);
+                  if (trackSortBy === 'title-desc') return hB.title.localeCompare(hA.title);
+                  if (trackSortBy === 'artist-asc') return hA.artist.localeCompare(hB.artist);
+                  if (trackSortBy === 'artist-desc') return hB.artist.localeCompare(hA.artist);
+                  return 0;
+                })
+                .map((rawTrack, idx) => {
                 const track = RAMMetadataCache.hydrateTrack(rawTrack);
                 const isInTaste = tasteItems.some(
                   t => t.title.trim().toLowerCase() === track.title.trim().toLowerCase() &&
@@ -498,19 +595,9 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                 return (
                   <div
                     key={track.id}
-                    className="tactile-card"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '1rem',
-                      padding: '1rem 1.25rem'
-                    }}
+                    className="tactile-card playlist-card-layout"
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0, flex: '1 1 0' }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-muted)', minWidth: '24px', flexShrink: 0 }}>
-                        #{idx + 1}
-                      </span>
+                    <div className="playlist-track-info">
 
                       {/* Album Cover Thumbnail (Empty if no cover - NO Castle/Concert placeholder) */}
                       <div style={{
@@ -546,9 +633,9 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                       </div>
                     </div>
 
-                    <div className="action-buttons-container" style={{ alignItems: 'center', flexShrink: 0 }}>
+                    <div className="playlist-actions-left">
                       <button
-                        className={isPlayingThis ? "btn-neo btn-neo-red" : "btn-neo btn-neo-lime"}
+                        className={isPlayingThis ? "btn-neo btn-neo-red playlist-play-btn" : "btn-neo btn-neo-lime playlist-play-btn"}
                         style={{
                           padding: '0.45rem 0.75rem',
                           fontSize: '0.8rem',
@@ -558,27 +645,26 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                         onClick={() => handleTogglePlayPlaylistTrack(track)}
                       >
                         {loadingPreviewId === track.id ? (
-                          <Loader2 size={14} className="animate-spin" />
+                          <Loader2 size={16} className="animate-spin" />
                         ) : isPlayingThis ? (
-                          <Pause size={14} />
+                          <><Pause size={14} /> PAUSE PREVIEW</>
                         ) : (
-                          <Play size={14} />
+                          <><Play size={14} /> PLAY PREVIEW</>
                         )}
-                        {loadingPreviewId === track.id ? 'LOADING...' : isPlayingThis ? 'PAUSE PREVIEW' : 'PLAY PREVIEW'}
                       </button>
 
                       <button
-                        className="btn-neo"
+                        className="btn-neo playlist-artwork-btn"
                         style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem', backgroundColor: '#0D0E12', color: '#FFFFFF', border: '2px solid #FFFFFF' }}
                         onClick={() => setArtworkModalTrack({ artist: track.artist, title: track.title, coverUrl: track.coverUrl || (track as any).cover_url })}
                       >
                         <ImageIcon size={14} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
                       </button>
 
-                      <div style={{ minWidth: '175px', display: 'flex', justifyContent: 'center' }}>
+                      <div className="playlist-actions-middle">
                         {isInTaste ? (
                           <span
-                            className="badge-neo badge-lime"
+                            className="badge-neo badge-lime playlist-taste-btn"
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
@@ -590,11 +676,11 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                               boxSizing: 'border-box'
                             }}
                           >
-                            <Check size={14} /> IN TASTE PROFILE
+                            <Check size={14} /> IN TASTE
                           </span>
                         ) : (
                           <button
-                            className="btn-neo btn-neo-lime"
+                            className="btn-neo btn-neo-lime playlist-taste-btn"
                             style={{
                               width: '100%',
                               padding: '0.45rem 0.75rem',
@@ -605,28 +691,28 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                             disabled={loadingActionId === `taste-${track.id}`}
                           >
                             {loadingActionId === `taste-${track.id}` ? (
-                              <Loader2 size={14} className="animate-spin" />
+                              <Loader2 size={16} className="animate-spin" />
                             ) : (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                                <Sparkles size={14} /> ADD TO TASTE
-                              </span>
+                              <><Sparkles size={14} /> ADD TASTE</>
                             )}
                           </button>
                         )}
                       </div>
 
-                      <button
-                        className="btn-neo btn-neo-red"
-                        style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem' }}
-                        onClick={() => handleRemoveTrackAction(track.id, activePlaylist.id)}
-                        disabled={loadingActionId === `remove-${track.id}`}
-                      >
-                        {loadingActionId === `remove-${track.id}` ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          <Trash2 size={16} />
-                        )}
-                      </button>
+                      <div className="playlist-actions-right">
+                        <button
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem' }}
+                          onClick={() => handleRemoveTrackAction(track.id, activePlaylist.id)}
+                          disabled={loadingActionId === `remove-${track.id}`}
+                          title="Remove from playlist"
+                        >
+                          {loadingActionId === `remove-${track.id}` ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={18} />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -637,17 +723,20 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
       )}
 
       {/* Add Song Modal */}
-      {showAddSongModal && activePlaylist && (
+      {showAddSongModal && activePlaylist && createPortal(
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          width: '100vw', height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 999,
-          padding: '1rem'
-        }}>
+          zIndex: 999999,
+          padding: '1rem',
+          boxSizing: 'border-box'
+        }} onClick={() => setShowAddSongModal(false)}>
           <div style={{
             backgroundColor: 'var(--bg-secondary)',
             border: '3px solid var(--border-color)',
@@ -655,7 +744,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
             maxWidth: '520px',
             width: '100%',
             padding: '1.75rem'
-          }}>
+          }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem' }}>
               <span className="badge-neo badge-lime">ADD SONG TO PLAYLIST</span>
               <button
@@ -756,13 +845,13 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                   gap: '0.75rem',
                   marginTop: '0.25rem'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', color: 'var(--accent-lime)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 800 }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-start', color: 'var(--accent-lime)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 800 }}>
                     <button
                       type="button"
                       onClick={() => setShowCustomFallback(false)}
                       style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 800 }}
                     >
-                      ← BACK TO SEARCH
+                      <span className="back-btn-text-full">← BACK TO SEARCH</span><span className="back-btn-text-short">← Back</span>
                     </button>
                   </div>
 
@@ -822,21 +911,25 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Create New Playlist Modal */}
-      {showCreateModal && (
+      {/* Create Playlist Modal */}
+      {showCreateModal && createPortal(
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          width: '100vw', height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 999,
-          padding: '1rem'
-        }}>
+          zIndex: 999999,
+          padding: '1rem',
+          boxSizing: 'border-box'
+        }} onClick={() => setShowCreateModal(false)}>
           <div style={{
             backgroundColor: 'var(--bg-secondary)',
             border: '3px solid var(--border-color)',
@@ -844,7 +937,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
             maxWidth: '460px',
             width: '100%',
             padding: '1.75rem'
-          }}>
+          }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem' }}>
               <span className="badge-neo badge-lime">CREATE PLAYLIST</span>
               <button
@@ -901,7 +994,8 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <ArtworkModal
