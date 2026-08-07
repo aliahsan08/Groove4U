@@ -19,11 +19,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS Middleware allowing local and production origins
+# Configure CORS Middleware allowing local and production origins dynamically
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
-    allow_origin_regex=".*",
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.up\.railway\.app|http://localhost:.*|http://127\.0\.0\.1:.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
