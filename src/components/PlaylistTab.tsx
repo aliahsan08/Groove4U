@@ -19,6 +19,7 @@ interface PlaylistTabProps {
   onRemoveFromPlaylist: (trackId: string, playlistId: string) => void;
   onAddSongToPlaylist: (playlistId: string, track: Track) => Promise<void>;
   onAddTrackToTasteProfile: (track: Track, rating?: number) => Promise<void>;
+  onDeleteTasteItem: (itemId: string) => void;
   tasteItems: TasteProfileItem[];
   onTogglePlay?: (track: Track) => void;
   currentPlayingTrackId?: string | null;
@@ -35,6 +36,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
   onRemoveFromPlaylist,
   onAddSongToPlaylist,
   onAddTrackToTasteProfile,
+  onDeleteTasteItem,
   tasteItems,
   onTogglePlay,
   currentPlayingTrackId,
@@ -585,10 +587,11 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                 })
                 .map((rawTrack, idx) => {
                 const track = RAMMetadataCache.hydrateTrack(rawTrack);
-                const isInTaste = tasteItems.some(
+                const matchedTasteItem = tasteItems.find(
                   t => t.title.trim().toLowerCase() === track.title.trim().toLowerCase() &&
                     t.artist.trim().toLowerCase() === track.artist.trim().toLowerCase()
                 );
+                const isInTaste = !!matchedTasteItem;
                 const coverUrl = track.coverUrl || (track as any).cover_url || '';
                 const isPlayingThis = currentPlayingTrackId ? (currentPlayingTrackId === track.id && isPlaying) : (playingTrackId === track.id);
 
@@ -662,9 +665,9 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                       </button>
 
                       <div className="playlist-actions-middle">
-                        {isInTaste ? (
-                          <span
-                            className="badge-neo badge-lime playlist-taste-btn"
+                        {isInTaste && matchedTasteItem ? (
+                          <button
+                            className="btn-neo btn-neo-secondary playlist-taste-btn"
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
@@ -675,9 +678,11 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                               fontSize: '0.8rem',
                               boxSizing: 'border-box'
                             }}
+                            onClick={() => onDeleteTasteItem(matchedTasteItem.id)}
+                            title="Remove from Taste Profile"
                           >
                             <Check size={14} /> IN TASTE
-                          </span>
+                          </button>
                         ) : (
                           <button
                             className="btn-neo btn-neo-lime playlist-taste-btn"
@@ -773,7 +778,9 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                       style={{ paddingRight: '2.5rem', width: '100%', display: 'block' }}
                     />
                     {isSearching && (
-                      <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-lime)' }} />
+                      <div style={{ position: 'absolute', right: '1.25rem', top: 0, bottom: 0, display: 'flex', alignItems: 'center' }}>
+                        <Loader2 size={18} className="animate-spin" style={{ color: 'var(--accent-lime)' }} />
+                      </div>
                     )}
                   </div>
 

@@ -579,6 +579,7 @@ export function App() {
                 }
               }}
               onAddTrackToTasteProfile={handleAddTrackToTasteProfile}
+              onDeleteTasteItem={handleDeleteTasteItem}
               tasteItems={tasteItems}
               onTogglePlay={handleGlobalTogglePlay}
               currentPlayingTrackId={currentPlayingTrack?.id}

@@ -194,24 +194,11 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
     return () => clearTimeout(timer);
   }, [trackSearchInput]);
 
-  const handleSelectSearchResult = async (trackStr: string) => {
+  const handleSelectSearchResult = (trackStr: string) => {
+    setTrackSearchInput(trackStr);
     setSearchResults([]);
     setIsCatalogMatch(true);
     setShowCustomFallback(false);
-    setTrackSearchInput('');
-
-    const parts = trackStr.split(/[-—–]/);
-    const title = parts[0]?.trim() || trackStr;
-    const artist = parts.length > 1 ? parts[1]?.trim() : 'Various Artists';
-
-    await onAddTasteItem({
-      title,
-      artist,
-      genre: customGenreInput || 'Music',
-      year: 2024,
-      rating: selectedRating,
-      coverUrl: ''
-    });
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -735,7 +722,9 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         style={{ paddingRight: '2.5rem', width: '100%', display: 'block' }}
                       />
                       {isSearching && (
-                        <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-lime)' }} />
+                        <div style={{ position: 'absolute', right: '1.25rem', top: 0, bottom: 0, display: 'flex', alignItems: 'center' }}>
+                          <Loader2 size={18} className="animate-spin" style={{ color: 'var(--accent-lime)' }} />
+                        </div>
                       )}
                     </div>
 
