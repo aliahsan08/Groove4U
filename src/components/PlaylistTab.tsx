@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Playlist, Track, TasteProfileItem } from '../types/music';
 import { ALL_GENRES } from '../constants/genres';
-import { Music, Trash2, Download, Plus, Edit2, BookmarkCheck, FolderPlus, Check, Sparkles, PlusCircle, AlertCircle, CheckCircle, Loader2, Play, Pause, ArrowLeft, Image as ImageIcon, Search, ArrowUpDown } from 'lucide-react';
+import { Music, Trash2, Plus, Edit2, BookmarkCheck, FolderPlus, Check, Sparkles, PlusCircle, AlertCircle, CheckCircle, Loader2, Play, Pause, ArrowLeft, Image as ImageIcon, Search, ArrowUpDown } from 'lucide-react';
 import { fetchOnDemandPreviewUrl } from '../services/api';
 import { RAMMetadataCache } from '../services/metadataCache';
 import { ArtworkModal } from './ArtworkModal';
@@ -42,7 +42,6 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
   currentPlayingTrackId,
   isPlaying = false
 }) => {
-  const [showExportModal, setShowExportModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddSongModal, setShowAddSongModal] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -498,15 +497,6 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                 >
                   <PlusCircle size={18} /> + ADD SONG TO PLAYLIST
                 </button>
-
-                {activeTracks.length > 0 && (
-                  <button
-                    className="btn-neo btn-neo-secondary"
-                    onClick={() => setShowExportModal(true)}
-                  >
-                    <Download size={18} /> EXPORT
-                  </button>
-                )}
 
                 {playlists.length > 1 && (
                   <button
