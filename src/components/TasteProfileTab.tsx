@@ -732,10 +732,10 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         value={trackSearchInput}
                         onChange={e => setTrackSearchInput(e.target.value)}
                         required
-                        style={{ paddingRight: '2.5rem', width: '100%' }}
+                        style={{ paddingRight: '2.5rem', width: '100%', display: 'block' }}
                       />
                       {isSearching && (
-                        <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-lime)' }} />
+                        <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-lime)' }} />
                       )}
                     </div>
 

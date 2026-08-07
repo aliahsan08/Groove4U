@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, Sparkles, Music, Star, User, LogIn, LogOut, Menu, X } from 'lucide-react';
+import { Radio, Sparkles, Music, Star, User, LogIn, LogOut, Menu, X, Lock } from 'lucide-react';
 import { MusicThemeToggle } from './MusicThemeToggle';
 import { GrooveLogo } from './GrooveLogo';
 
@@ -103,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Playlists' : ''}
           >
-            <Music size={16} /> PLAYLIST {!isLoggedIn ? <span style={{ filter: 'grayscale(100%)', opacity: 0.85 }}>🔒</span> : `(${playlistCount})`}
+            <Music size={16} /> PLAYLIST {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center' }}><Lock size={14} /></span> : `(${playlistCount})`}
           </button>
 
           <button
@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Taste Profile' : ''}
           >
-            <Star size={16} /> TASTE PROFILE {!isLoggedIn ? <span style={{ filter: 'grayscale(100%)', opacity: 0.85 }}>🔒</span> : `(${tasteCount})`}
+            <Star size={16} /> TASTE PROFILE {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center' }}><Lock size={14} /></span> : `(${tasteCount})`}
           </button>
 
           <button
@@ -121,7 +121,7 @@ export const Header: React.FC<HeaderProps> = ({
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Profile' : ''}
           >
-            <User size={16} /> PROFILE {!isLoggedIn ? <span style={{ filter: 'grayscale(100%)', opacity: 0.85 }}>🔒</span> : ''}
+            <User size={16} /> PROFILE {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center' }}><Lock size={14} /></span> : ''}
           </button>
         </nav>
 
@@ -198,7 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => { if (isLoggedIn) handleTabClick('playlist'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { opacity: 0.7 } : {}}
           >
-            <Music size={20} style={{ flexShrink: 0 }} /> Playlists {!isLoggedIn ? '🔒' : `(${playlistCount})`}
+            <Music size={20} style={{ flexShrink: 0 }} /> Playlists {!isLoggedIn ? <span style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '0.2rem' }}><Lock size={16} /></span> : `(${playlistCount})`}
           </button>
 
           <button
@@ -206,7 +206,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => { if (isLoggedIn) handleTabClick('taste'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { opacity: 0.7 } : {}}
           >
-            <Star size={20} style={{ flexShrink: 0 }} /> Taste Profile {!isLoggedIn ? '🔒' : `(${tasteCount})`}
+            <Star size={20} style={{ flexShrink: 0 }} /> Taste Profile {!isLoggedIn ? <span style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '0.2rem' }}><Lock size={16} /></span> : `(${tasteCount})`}
           </button>
 
           <button
@@ -214,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => { if (isLoggedIn) handleTabClick('profile'); else { onOpenAuthModal(); setIsSidebarOpen(false); } }}
             style={!isLoggedIn ? { opacity: 0.7 } : {}}
           >
-            <User size={20} style={{ flexShrink: 0 }} /> Profile {!isLoggedIn ? '🔒' : ''}
+            <User size={20} style={{ flexShrink: 0 }} /> Profile {!isLoggedIn ? <span style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '0.2rem' }}><Lock size={16} /></span> : ''}
           </button>
         </div>
 
