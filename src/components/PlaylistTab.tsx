@@ -633,25 +633,30 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                           padding: '0.45rem 0.75rem',
                           fontSize: '0.8rem',
                           backgroundColor: isPlayingThis ? '#EF4444' : undefined,
-                          color: isPlayingThis ? '#FFFFFF' : undefined
+                          color: isPlayingThis ? '#FFFFFF' : undefined,
+                          minHeight: '44px',
+                          flexShrink: 0,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
                         onClick={() => handleTogglePlayPlaylistTrack(track)}
                       >
                         {loadingPreviewId === track.id ? (
-                          <Loader2 size={16} className="animate-spin" />
+                          <Loader2 size={16} className="animate-spin" style={{ flexShrink: 0 }} />
                         ) : isPlayingThis ? (
-                          <><Pause size={14} /> PAUSE PREVIEW</>
+                          <><Pause size={14} style={{ flexShrink: 0 }} /> PAUSE PREVIEW</>
                         ) : (
-                          <><Play size={14} /> PLAY PREVIEW</>
+                          <><Play size={14} style={{ flexShrink: 0 }} /> PLAY PREVIEW</>
                         )}
                       </button>
 
                       <button
                         className="btn-neo playlist-artwork-btn"
-                        style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem', backgroundColor: '#0D0E12', color: '#FFFFFF', border: '2px solid #FFFFFF' }}
+                        style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem', backgroundColor: '#0D0E12', color: '#FFFFFF', border: '2px solid #FFFFFF', minHeight: '44px', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                         onClick={() => setArtworkModalTrack({ artist: track.artist, title: track.title, coverUrl: track.coverUrl || (track as any).cover_url })}
                       >
-                        <ImageIcon size={14} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
+                        <ImageIcon size={14} style={{ color: 'var(--accent-lime)', flexShrink: 0 }} /> VIEW ARTWORK
                       </button>
 
                       <div className="playlist-actions-middle">
@@ -666,12 +671,14 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                               width: '100%',
                               padding: '0.45rem 0.75rem',
                               fontSize: '0.8rem',
-                              boxSizing: 'border-box'
+                              boxSizing: 'border-box',
+                              minHeight: '44px',
+                              flexShrink: 0
                             }}
                             onClick={() => onDeleteTasteItem(matchedTasteItem.id)}
                             title="Remove from Taste Profile"
                           >
-                            <Check size={14} /> IN TASTE
+                            <Check size={14} style={{ flexShrink: 0 }} /> IN TASTE
                           </button>
                         ) : (
                           <button
@@ -680,15 +687,17 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                               width: '100%',
                               padding: '0.45rem 0.75rem',
                               fontSize: '0.8rem',
-                              justifyContent: 'center'
+                              justifyContent: 'center',
+                              minHeight: '44px',
+                              flexShrink: 0
                             }}
                             onClick={() => handleAddTrackToTasteAction(track)}
                             disabled={loadingActionId === `taste-${track.id}`}
                           >
                             {loadingActionId === `taste-${track.id}` ? (
-                              <Loader2 size={16} className="animate-spin" />
+                              <Loader2 size={16} className="animate-spin" style={{ flexShrink: 0 }} />
                             ) : (
-                              <><Sparkles size={14} /> ADD TASTE</>
+                              <><Sparkles size={14} style={{ flexShrink: 0 }} /> ADD TASTE</>
                             )}
                           </button>
                         )}
@@ -696,15 +705,15 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
 
                       <div className="playlist-actions-right">
                         <button
-                          style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem 0.2rem 0.2rem 1.5rem' }}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                           onClick={() => handleRemoveTrackAction(track.id, activePlaylist.id)}
                           disabled={loadingActionId === `remove-${track.id}`}
                           title="Remove from playlist"
                         >
                           {loadingActionId === `remove-${track.id}` ? (
-                            <Loader2 size={16} className="animate-spin" />
+                            <Loader2 size={16} className="animate-spin" style={{ flexShrink: 0 }} />
                           ) : (
-                            <Trash2 size={18} />
+                            <Trash2 size={18} style={{ flexShrink: 0 }} />
                           )}
                         </button>
                       </div>

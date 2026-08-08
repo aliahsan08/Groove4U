@@ -61,6 +61,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Victoria Legrand"
                 required
+                style={{ minHeight: '44px' }}
               />
             </div>
 
@@ -76,7 +77,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 value={formData.email}
                 readOnly
                 disabled
-                style={{ backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'not-allowed' }}
+                style={{ backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'not-allowed', minHeight: '44px' }}
               />
             </div>
 
@@ -92,6 +93,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
                 placeholder="Pakistan"
                 required
+                style={{ minHeight: '44px' }}
               />
             </div>
 
@@ -109,6 +111,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   value={formData.age || ''}
                   onChange={e => setFormData(prev => ({ ...prev, age: e.target.value ? parseInt(e.target.value) : undefined }))}
                   placeholder="24"
+                  style={{ minHeight: '44px' }}
                 />
               </div>
               <div>
@@ -119,7 +122,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   className="input-neo"
                   value={formData.gender || ''}
                   onChange={e => setFormData(prev => ({ ...prev, gender: e.target.value }))}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', minHeight: '44px' }}
                 >
                   <option value="">Select...</option>
                   <option value="Male">Male</option>
@@ -137,19 +140,19 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           type="submit"
           className="btn-neo btn-neo-lime"
           disabled={isSavingProfile}
-          style={{ padding: '0.9rem', fontSize: '1rem', justifyContent: 'center', opacity: isSavingProfile ? 0.7 : 1, cursor: isSavingProfile ? 'not-allowed' : 'pointer' }}
+          style={{ padding: '0.9rem', fontSize: '1rem', justifyContent: 'center', opacity: isSavingProfile ? 0.7 : 1, cursor: isSavingProfile ? 'not-allowed' : 'pointer', minHeight: '44px', flexShrink: 0 }}
         >
           {isSavingProfile ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Loader2 size={18} className="animate-spin" /> SAVING PROFILE...
+              <Loader2 size={18} className="animate-spin" style={{ flexShrink: 0 }} /> SAVING PROFILE...
             </span>
           ) : isSavedNotice ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle size={18} /> PROFILE SAVED!
+              <CheckCircle size={18} style={{ flexShrink: 0 }} /> PROFILE SAVED!
             </span>
           ) : (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Save size={18} /> SAVE PROFILE CHANGES
+              <Save size={18} style={{ flexShrink: 0 }} /> SAVE PROFILE CHANGES
             </span>
           )}
         </button>

@@ -277,6 +277,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.65rem 1.2rem;
+  min-height: 44px;
   border: 2px solid var(--border-color);
   cursor: pointer;
   display: inline-flex;
@@ -285,6 +286,7 @@ body {
   transition: all 0.1s ease;
   user-select: none;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-neo-lime {
@@ -333,7 +335,9 @@ body {
 /* Theme Toggle Button - Fixed Constant Size & Fixed Icon Slot */
 .btn-theme-toggle {
   width: 155px;
-  height: 38px;
+  max-width: 100%;
+  height: 44px;
+  min-height: 44px;
   display: grid !important;
   grid-template-columns: 24px 1fr !important;
   align-items: center;
@@ -423,6 +427,7 @@ body {
   font-size: 0.85rem;
   text-transform: uppercase;
   padding: 0.8rem 1.25rem;
+  min-height: 44px;
   border: none;
   border-right: 2px solid var(--border-color);
   background: transparent;
@@ -433,6 +438,7 @@ body {
   gap: 0.5rem;
   transition: all 0.15s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-tab-btn:hover {
@@ -448,8 +454,10 @@ body {
 
 /* Star/Numeric Rating Pill Switcher */
 .rating-pill {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border: 2px solid var(--border-color);
   background-color: var(--bg-secondary);
   color: var(--text-main);
@@ -461,6 +469,7 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all 0.1s ease;
+  flex-shrink: 0;
 }
 
 .rating-pill:hover,
@@ -506,6 +515,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.6rem 1.15rem;
+  min-height: 44px;
   border: 2px solid var(--border-color) !important;
   background-color: var(--bg-secondary);
   color: var(--text-main);
@@ -517,6 +527,7 @@ body {
   white-space: nowrap;
   transition: all 0.15s ease !important;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .sub-tab-btn:hover:not(.sub-tab-active) {
@@ -1065,8 +1076,8 @@ body {
     position: relative !important;
   }
   
-  .playlist-track-info { grid-area: info !important; padding-right: 2.5rem !important; }
-  .taste-track-info { grid-area: info !important; padding-right: 2.5rem !important; }
+  .playlist-track-info { grid-area: info !important; padding-right: 2.5rem !important; min-width: 0 !important; max-width: 100% !important; overflow: hidden !important; }
+  .taste-track-info { grid-area: info !important; padding-right: 2.5rem !important; min-width: 0 !important; max-width: 100% !important; overflow: hidden !important; }
   
   .playlist-actions-left, .taste-actions-left, .taste-actions-middle, .playlist-actions-middle {
     display: contents !important;
@@ -1106,4 +1117,29 @@ body {
     right: 1rem !important;
   }
 }
+
+/* ==========================================
+   GLOBAL FLEX & MOBILE CONSTRAINTS UTILITIES
+   ========================================== */
+.flex-text-container {
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  overflow: hidden !important;
+}
+
+.text-truncate-single {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+.touch-target-min {
+  min-height: 44px !important;
+  min-width: 44px !important;
+}
+
 

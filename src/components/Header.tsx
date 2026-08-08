@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div
           className="brand-logo-container"
           onClick={() => setActiveTab('home')}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', justifySelf: 'start' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', justifySelf: 'start', minWidth: 0, flexShrink: 0 }}
         >
           <div className="brand-logo-icon-box" style={{
             backgroundColor: 'var(--accent-lime)',
@@ -68,15 +68,16 @@ export const Header: React.FC<HeaderProps> = ({
             boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}>
-            <Radio size={26} className="brand-radio-icon" />
+            <Radio size={26} className="brand-radio-icon" style={{ flexShrink: 0 }} />
           </div>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <h1 className="brand-logo-h1" style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em', color: 'var(--text-main)', margin: 0 }}>
               GROOVE<span style={{ color: 'var(--accent-lime)' }}>4U</span>
             </h1>
-            <p className="brand-logo-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0.1rem 0 0 0' }}>
+            <p className="brand-logo-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0.1rem 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               MUSIC DISCOVERY ENGINE
             </p>
           </div>
@@ -94,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`nav-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
             onClick={() => handleTabClick('home')}
           >
-            <Sparkles size={16} /> RECOMMENDATIONS
+            <Sparkles size={16} style={{ flexShrink: 0 }} /> RECOMMENDATIONS
           </button>
 
           <button
@@ -103,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Playlists' : ''}
           >
-            <Music size={16} /> PLAYLIST {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center' }}><Lock size={14} /></span> : `(${playlistCount})`}
+            <Music size={16} style={{ flexShrink: 0 }} /> PLAYLIST {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}><Lock size={14} /></span> : `(${playlistCount})`}
           </button>
 
           <button
@@ -112,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Taste Profile' : ''}
           >
-            <Star size={16} /> TASTE PROFILE {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center' }}><Lock size={14} /></span> : `(${tasteCount})`}
+            <Star size={16} style={{ flexShrink: 0 }} /> TASTE PROFILE {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}><Lock size={14} /></span> : `(${tasteCount})`}
           </button>
 
           <button
@@ -121,12 +122,12 @@ export const Header: React.FC<HeaderProps> = ({
             style={!isLoggedIn ? { backgroundColor: 'var(--bg-primary)', opacity: 0.7, cursor: 'pointer' } : {}}
             title={!isLoggedIn ? 'Locked in Guest Mode - Log in to access Profile' : ''}
           >
-            <User size={16} /> PROFILE {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center' }}><Lock size={14} /></span> : ''}
+            <User size={16} style={{ flexShrink: 0 }} /> PROFILE {!isLoggedIn ? <span style={{ opacity: 0.85, display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}><Lock size={14} /></span> : ''}
           </button>
         </nav>
 
         {/* Right Column: Desktop Controls */}
-        <div className="desktop-controls" style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="desktop-controls" style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
           <MusicThemeToggle
             isDarkMode={isDarkMode}
             onToggle={() => setIsDarkMode(prev => !prev)}
@@ -137,29 +138,29 @@ export const Header: React.FC<HeaderProps> = ({
               className="btn-neo btn-neo-red"
               onClick={() => { onLogout(); setIsSidebarOpen(false); }}
               title="Log Out of Groove4U"
-              style={{ height: '38px', padding: '0 0.75rem', fontSize: '0.75rem', gap: '0.4rem' }}
+              style={{ minHeight: '44px', padding: '0 0.85rem', fontSize: '0.75rem', gap: '0.4rem', flexShrink: 0 }}
             >
-              <LogOut size={14} /> LOG OUT
+              <LogOut size={14} style={{ flexShrink: 0 }} /> LOG OUT
             </button>
           ) : (
             <button
               className="btn-neo btn-neo-lime"
               onClick={() => { onOpenAuthModal(); setIsSidebarOpen(false); }}
-              style={{ height: '38px', padding: '0 0.9rem', fontSize: '0.75rem', gap: '0.4rem' }}
+              style={{ minHeight: '44px', padding: '0 0.9rem', fontSize: '0.75rem', gap: '0.4rem', flexShrink: 0 }}
             >
-              <LogIn size={14} /> LOGIN / SIGN UP
+              <LogIn size={14} style={{ flexShrink: 0 }} /> LOGIN / SIGN UP
             </button>
           )}
         </div>
 
         {/* Right Column: Mobile Hamburger Menu Button */}
-        <div className="mobile-menu-btn" style={{ justifySelf: 'end' }}>
+        <div className="mobile-menu-btn" style={{ justifySelf: 'end', flexShrink: 0 }}>
           <button
             className="btn-neo"
             onClick={() => setIsSidebarOpen(true)}
-            style={{ padding: '0.5rem', backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-color)', color: 'var(--text-main)', cursor: 'pointer' }}
+            style={{ minWidth: '44px', minHeight: '44px', padding: '0.5rem', backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-color)', color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
-            <Menu size={24} />
+            <Menu size={24} style={{ flexShrink: 0 }} />
           </button>
         </div>
       </div>
@@ -179,9 +180,9 @@ export const Header: React.FC<HeaderProps> = ({
           />
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', cursor: 'pointer', padding: '0.5rem' }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', cursor: 'pointer', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
-            <X size={28} />
+            <X size={28} style={{ flexShrink: 0 }} />
           </button>
         </div>
 

@@ -167,14 +167,14 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </p>
 
               <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', position: 'relative' }}>
-                <div style={{ position: 'relative', flex: 1 }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
                   <input
                     type="text"
                     className="input-neo"
                     placeholder="Search artist (e.g. A$AP Rocky, Beach House, Alex Turner)"
                     value={artistInput}
                     onChange={e => setArtistInput(e.target.value)}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', minHeight: '44px' }}
                   />
                   {artistSuggestions.length > 0 && (
                     <div style={{
@@ -196,7 +196,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                           style={{
                             padding: '0.6rem 0.85rem', cursor: 'pointer', fontFamily: 'var(--font-mono)',
                             fontSize: '0.825rem', borderBottom: i < artistSuggestions.length - 1 ? '1px solid var(--border-color)' : 'none',
-                            backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)'
+                            backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)',
+                            minHeight: '44px', display: 'flex', alignItems: 'center'
                           }}
                           onMouseEnter={e => {
                             e.currentTarget.style.backgroundColor = 'var(--accent-lime)';
@@ -213,8 +214,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                     </div>
                   )}
                 </div>
-                <button type="button" onClick={handleAddArtist} className="btn-neo btn-neo-lime" style={{ padding: '0.65rem 1rem' }}>
-                  <Plus size={16} /> ADD
+                <button type="button" onClick={handleAddArtist} className="btn-neo btn-neo-lime" style={{ padding: '0.65rem 1rem', minHeight: '44px', minWidth: '44px', flexShrink: 0 }}>
+                  <Plus size={16} style={{ flexShrink: 0 }} /> ADD
                 </button>
               </div>
 
@@ -231,7 +232,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       type="button"
                       className="btn-neo btn-neo-lime"
                       onClick={() => handleRemoveArtist(a)}
-                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', minHeight: '44px', flexShrink: 0 }}
                     >
                       {a} ×
                     </button>
@@ -252,7 +253,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </p>
 
               <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', position: 'relative' }}>
-                <div style={{ position: 'relative', flex: 1 }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
                   <input
                     type="text"
                     className="input-neo"
@@ -262,7 +263,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       setGenreInput(e.target.value);
                       setGenreError(null);
                     }}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', minHeight: '44px' }}
                   />
                   {genreSuggestions.length > 0 && (
                     <div style={{
@@ -284,7 +285,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                           style={{
                             padding: '0.6rem 0.85rem', cursor: 'pointer', fontFamily: 'var(--font-mono)',
                             fontSize: '0.825rem', borderBottom: i < genreSuggestions.length - 1 ? '1px solid var(--border-color)' : 'none',
-                            backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)'
+                            backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)',
+                            minHeight: '44px', display: 'flex', alignItems: 'center'
                           }}
                           onMouseEnter={e => {
                             e.currentTarget.style.backgroundColor = 'var(--accent-lime)';
@@ -301,8 +303,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                     </div>
                   )}
                 </div>
-                <button type="button" onClick={handleAddGenre} className="btn-neo btn-neo-lime" style={{ padding: '0.65rem 1rem' }}>
-                  <Plus size={16} /> ADD
+                <button type="button" onClick={handleAddGenre} className="btn-neo btn-neo-lime" style={{ padding: '0.65rem 1rem', minHeight: '44px', minWidth: '44px', flexShrink: 0 }}>
+                  <Plus size={16} style={{ flexShrink: 0 }} /> ADD
                 </button>
               </div>
 
@@ -312,7 +314,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   border: '2px solid var(--accent-red)', borderRadius: '4px', color: 'var(--accent-red)',
                   fontFamily: 'var(--font-mono)', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem'
                 }}>
-                  <AlertCircle size={15} /> {genreError}
+                  <AlertCircle size={15} style={{ flexShrink: 0 }} /> {genreError}
                 </div>
               )}
 
@@ -329,7 +331,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       type="button"
                       className="btn-neo btn-neo-lime"
                       onClick={() => handleRemoveGenre(g)}
-                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', minHeight: '44px', flexShrink: 0 }}
                     >
                       {g} ×
                     </button>
@@ -359,7 +361,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>None selected</span>
                     ) : (
                       selectedArtists.map(a => (
-                        <span key={a} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                        <span key={a} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', flexShrink: 0 }}>
                           {a}
                         </span>
                       ))
@@ -376,7 +378,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>None selected</span>
                     ) : (
                       selectedGenres.map(g => (
-                        <span key={g} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                        <span key={g} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', flexShrink: 0 }}>
                           {g}
                         </span>
                       ))
@@ -410,9 +412,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               type="button"
               className="btn-neo btn-neo-secondary"
               onClick={() => setCurrentStep(prev => prev - 1)}
-              style={{ padding: '0.75rem 1.25rem' }}
+              style={{ padding: '0.75rem 1.25rem', minHeight: '44px', flexShrink: 0 }}
             >
-              <ArrowLeft size={16} /> BACK
+              <ArrowLeft size={16} style={{ flexShrink: 0 }} /> BACK
             </button>
           ) : (
             <div />
@@ -423,9 +425,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               type="button"
               className="btn-neo btn-neo-lime"
               onClick={() => setCurrentStep(prev => prev + 1)}
-              style={{ padding: '0.75rem 1.25rem' }}
+              style={{ padding: '0.75rem 1.25rem', minHeight: '44px', flexShrink: 0 }}
             >
-              NEXT <ArrowRight size={16} />
+              NEXT <ArrowRight size={16} style={{ flexShrink: 0 }} />
             </button>
           ) : (
             <button
@@ -433,17 +435,17 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               className="btn-neo btn-neo-lime"
               disabled={isSubmitting}
               onClick={handleSubmitFinal}
-              style={{ padding: '0.75rem 1.25rem', boxShadow: '0 4px 14px var(--accent-lime)' }}
+              style={{ padding: '0.75rem 1.25rem', boxShadow: '0 4px 14px var(--accent-lime)', minHeight: '44px', flexShrink: 0 }}
             >
               {isSubmitting ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Loader2 size={18} className="animate-spin" /> GENERATING...
+                  <Loader2 size={18} className="animate-spin" style={{ flexShrink: 0 }} /> GENERATING...
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span className="back-btn-text-full">GENERATE RECOMMENDATIONS</span>
                   <span className="back-btn-text-short">GENERATE</span>
-                  <ArrowRight size={18} />
+                  <ArrowRight size={18} style={{ flexShrink: 0 }} />
                 </span>
               )}
             </button>

@@ -245,14 +245,14 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   }}
                 >
                   {/* Card Main Body */}
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
                     {/* Card Header: Rank Badge & Confidence Score */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                      <span className="badge-neo badge-red">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span className="badge-neo badge-red" style={{ flexShrink: 0 }}>
                         #{index + 1}
                       </span>
                       {(isLoggedIn && tasteCount >= 5) && (
-                        <span className="badge-neo badge-lime">
+                        <span className="badge-neo badge-lime" style={{ flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
                           CONFIDENCE: {track.matchScore ?? 85}%
                         </span>
                       )}
@@ -270,7 +270,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                       backgroundColor: 'var(--bg-primary)',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      flexShrink: 0
                     }}>
                       {coverImage ? (
                         <img
@@ -311,10 +312,16 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                           alignItems: 'center',
                           gap: '0.35rem',
                           boxShadow: '2px 2px 0px #000000',
-                          zIndex: 3
+                          zIndex: 3,
+                          maxWidth: 'calc(100% - 24px)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          minHeight: '44px',
+                          flexShrink: 0
                         }}
                       >
-                        <ImageIcon size={14} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
+                        <ImageIcon size={14} style={{ color: 'var(--accent-lime)', flexShrink: 0 }} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>VIEW ARTWORK</span>
                       </button>
 
                       {/* Audio Preview Play/Pause Trigger Overlay */}
@@ -335,17 +342,25 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                             alignItems: 'center',
                             gap: '0.4rem',
                             boxShadow: 'var(--shadow-sm)',
-                            zIndex: 2
+                            zIndex: 2,
+                            maxWidth: 'calc(100% - 24px)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minHeight: '44px',
+                            flexShrink: 0
                           }}
                         >
                           {loadingPreviewId === track.id ? (
-                            <Loader2 size={16} className="animate-spin" />
+                            <Loader2 size={16} className="animate-spin" style={{ flexShrink: 0 }} />
                           ) : isPlayingThis ? (
-                            <Pause size={16} />
+                            <Pause size={16} style={{ flexShrink: 0 }} />
                           ) : (
-                            <Play size={16} />
+                            <Play size={16} style={{ flexShrink: 0 }} />
                           )}
-                          {loadingPreviewId === track.id ? 'LOADING...' : isPlayingThis ? 'PAUSE PREVIEW' : 'PLAY PREVIEW'}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {loadingPreviewId === track.id ? 'LOADING...' : isPlayingThis ? 'PAUSE PREVIEW' : 'PLAY PREVIEW'}
+                          </span>
                         </button>
                       ) : (
                         <div
@@ -359,7 +374,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                             fontSize: '0.7rem',
                             fontFamily: 'var(--font-mono)',
                             border: '1px solid var(--border-color)',
-                            zIndex: 2
+                            zIndex: 2,
+                            flexShrink: 0
                           }}
                         >
                           No Preview
@@ -368,7 +384,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     </div>
 
                     {/* Track Title & Artist Name */}
-                    <div style={{ marginBottom: '0.4rem' }}>
+                    <div style={{ marginBottom: '0.4rem', minWidth: 0, overflow: 'hidden' }}>
                       <MarqueeText
                         text={track.title}
                         style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}
@@ -383,7 +399,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     {isSavedAnywhere && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.75rem' }}>
                         {savedInPlaylists.map(pl => (
-                          <span key={pl.id} className="badge-neo badge-dark" style={{ fontSize: '0.68rem', padding: '0.15rem 0.45rem' }}>
+                          <span key={pl.id} className="badge-neo badge-dark" style={{ fontSize: '0.68rem', padding: '0.15rem 0.45rem', flexShrink: 0, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             ✓ {pl.name}
                           </span>
                         ))}
@@ -401,8 +417,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         if (tasteMatch) {
                           return (
                             <div>
-                              <span className="badge-neo badge-lime" style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                                <Check size={14} /> IN TASTE PROFILE ({tasteMatch.rating}/10)
+                              <span className="badge-neo badge-lime" style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <Check size={14} style={{ flexShrink: 0 }} /> IN TASTE PROFILE ({tasteMatch.rating}/10)
                               </span>
                             </div>
                           );
@@ -413,7 +429,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         return (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-                              {isRatingThisTrack && <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent-lime)' }} />}
+                              {isRatingThisTrack && <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent-lime)', flexShrink: 0 }} />}
                               Rate Song (1-10)
                             </span>
                             <select
@@ -434,7 +450,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                                 padding: '0.35rem 0.5rem',
                                 cursor: (!isLoggedIn || isRatingThisTrack) ? 'not-allowed' : 'pointer',
                                 opacity: (!isLoggedIn || isRatingThisTrack) ? 0.5 : 1,
-                                width: '100%'
+                                width: '100%',
+                                minHeight: '44px'
                               }}
                             >
                               <option value="" disabled>
@@ -454,14 +471,16 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '0.75rem', position: 'relative' }}>
                     <button
                       className={`btn-neo ${isSavedAnywhere ? 'btn-neo-lime' : 'btn-neo-cyan'}`}
-                      style={{ width: '100%', fontSize: '0.85rem', justifyContent: 'space-between' }}
+                      style={{ width: '100%', fontSize: '0.85rem', justifyContent: 'space-between', minHeight: '44px' }}
                       onClick={() => setOpenDropdownTrackId(isDropdownOpen ? null : track.id)}
                     >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        {isSavedAnywhere ? <Check size={16} /> : <Bookmark size={16} />}
-                        {isSavedAnywhere ? `SAVED IN ${savedInPlaylists.length} PLAYLIST${savedInPlaylists.length > 1 ? 'S' : ''}` : 'ADD TO PLAYLIST'}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {isSavedAnywhere ? <Check size={16} style={{ flexShrink: 0 }} /> : <Bookmark size={16} style={{ flexShrink: 0 }} />}
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {isSavedAnywhere ? `SAVED IN ${savedInPlaylists.length} PLAYLIST${savedInPlaylists.length > 1 ? 'S' : ''}` : 'ADD TO PLAYLIST'}
+                        </span>
                       </span>
-                      <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                      <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
                     </button>
 
                     {/* Playlist Checkbox Popover */}
@@ -486,7 +505,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                           </span>
                           <button
                             onClick={() => setOpenDropdownTrackId(null)}
-                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 800 }}
+                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 800, minHeight: '44px', minWidth: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                           >
                             ✕ CLOSE
                           </button>
@@ -513,24 +532,29 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                                   fontFamily: 'var(--font-mono)',
                                   fontSize: '0.8rem',
                                   fontWeight: 700,
-                                  cursor: 'pointer'
+                                  cursor: 'pointer',
+                                  minHeight: '44px',
+                                  gap: '0.5rem',
+                                  minWidth: 0
                                 }}
                                 onClick={() => handleTogglePlaylistAction(track, pl.id)}
                               >
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1, overflow: 'hidden' }}>
                                   {isProcessing ? (
-                                    <Loader2 size={14} className="animate-spin" style={{ color: inThisPlaylist ? '#FFF' : 'var(--accent-lime)' }} />
+                                    <Loader2 size={14} className="animate-spin" style={{ color: inThisPlaylist ? '#FFF' : 'var(--accent-lime)', flexShrink: 0 }} />
                                   ) : (
                                     <input
                                       type="checkbox"
                                       checked={inThisPlaylist}
                                       onChange={() => { }}
-                                      style={{ accentColor: '#FFFFFF', cursor: 'pointer' }}
+                                      style={{ accentColor: '#FFFFFF', cursor: 'pointer', flexShrink: 0 }}
                                     />
                                   )}
-                                  {pl.name}
+                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {pl.name}
+                                  </span>
                                 </span>
-                                <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>
+                                <span style={{ fontSize: '0.7rem', opacity: 0.8, flexShrink: 0 }}>
                                   ({pl.tracks.length})
                                 </span>
                               </div>
@@ -542,10 +566,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         {!isCreatingInline ? (
                           <button
                             className="btn-neo btn-neo-secondary"
-                            style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', justifyContent: 'center', width: '100%', marginTop: '0.2rem' }}
+                            style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', justifyContent: 'center', width: '100%', marginTop: '0.2rem', minHeight: '44px' }}
                             onClick={() => setIsCreatingInline(true)}
                           >
-                            <Plus size={14} /> CREATE NEW PLAYLIST
+                            <Plus size={14} style={{ flexShrink: 0 }} /> CREATE NEW PLAYLIST
                           </button>
                         ) : (
                           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.2rem' }}>
@@ -555,7 +579,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                               value={newPlaylistName}
                               onChange={(e) => setNewPlaylistName(e.target.value)}
                               className="input-neo"
-                              style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', flex: 1 }}
+                              style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', flex: 1, minWidth: 0, minHeight: '44px' }}
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleCreateAndAdd(track);
@@ -563,7 +587,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                             />
                             <button
                               className="btn-neo btn-neo-lime"
-                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', minHeight: '44px', flexShrink: 0 }}
                               onClick={() => handleCreateAndAdd(track)}
                             >
                               ADD
@@ -626,14 +650,14 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     }}
                   >
                     {/* Card Main Body */}
-                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
                       {/* Card Header: Rank Badge & Confidence Score */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <span className="badge-neo badge-red">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span className="badge-neo badge-red" style={{ flexShrink: 0 }}>
                           #{currentSlideIndex + 1}
                         </span>
                         {(isLoggedIn && tasteCount >= 5) && (
-                          <span className="badge-neo badge-lime">
+                          <span className="badge-neo badge-lime" style={{ flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
                             CONFIDENCE: {track.matchScore ?? 85}%
                           </span>
                         )}
@@ -651,7 +675,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         backgroundColor: 'var(--bg-primary)',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flexShrink: 0
                       }}>
                         {coverImage ? (
                           <img
@@ -692,10 +717,16 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                             alignItems: 'center',
                             gap: '0.35rem',
                             boxShadow: '2px 2px 0px #000000',
-                            zIndex: 3
+                            zIndex: 3,
+                            maxWidth: 'calc(100% - 24px)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minHeight: '44px',
+                            flexShrink: 0
                           }}
                         >
-                          <ImageIcon size={14} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
+                          <ImageIcon size={14} style={{ color: 'var(--accent-lime)', flexShrink: 0 }} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>VIEW ARTWORK</span>
                         </button>
 
                         {/* Audio Preview Play/Pause Trigger Overlay */}
@@ -716,17 +747,25 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                               alignItems: 'center',
                               gap: '0.4rem',
                               boxShadow: 'var(--shadow-sm)',
-                              zIndex: 2
+                              zIndex: 2,
+                              maxWidth: 'calc(100% - 24px)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              minHeight: '44px',
+                              flexShrink: 0
                             }}
                           >
                             {loadingPreviewId === track.id ? (
-                              <Loader2 size={16} className="animate-spin" />
+                              <Loader2 size={16} className="animate-spin" style={{ flexShrink: 0 }} />
                             ) : isPlayingThis ? (
-                              <Pause size={16} />
+                              <Pause size={16} style={{ flexShrink: 0 }} />
                             ) : (
-                              <Play size={16} />
+                              <Play size={16} style={{ flexShrink: 0 }} />
                             )}
-                            {loadingPreviewId === track.id ? 'LOADING...' : isPlayingThis ? 'PAUSE PREVIEW' : 'PLAY PREVIEW'}
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {loadingPreviewId === track.id ? 'LOADING...' : isPlayingThis ? 'PAUSE PREVIEW' : 'PLAY PREVIEW'}
+                            </span>
                           </button>
                         ) : (
                           <div
@@ -740,7 +779,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                               fontSize: '0.7rem',
                               fontFamily: 'var(--font-mono)',
                               border: '1px solid var(--border-color)',
-                              zIndex: 2
+                              zIndex: 2,
+                              flexShrink: 0
                             }}
                           >
                             No Preview
@@ -749,7 +789,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                       </div>
 
                       {/* Track Title & Artist Name */}
-                      <div style={{ marginBottom: '0.4rem' }}>
+                      <div style={{ marginBottom: '0.4rem', minWidth: 0, overflow: 'hidden' }}>
                         <MarqueeText
                           text={track.title}
                           style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}
@@ -764,7 +804,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                       {isSavedAnywhere && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.75rem' }}>
                           {savedInPlaylists.map(pl => (
-                            <span key={pl.id} className="badge-neo badge-dark" style={{ fontSize: '0.68rem', padding: '0.15rem 0.45rem' }}>
+                            <span key={pl.id} className="badge-neo badge-dark" style={{ fontSize: '0.68rem', padding: '0.15rem 0.45rem', flexShrink: 0, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               ✓ {pl.name}
                             </span>
                           ))}
@@ -782,8 +822,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                           if (tasteMatch) {
                             return (
                               <div>
-                                <span className="badge-neo badge-lime" style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                                  <Check size={14} /> IN TASTE PROFILE ({tasteMatch.rating}/10)
+                                <span className="badge-neo badge-lime" style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  <Check size={14} style={{ flexShrink: 0 }} /> IN TASTE PROFILE ({tasteMatch.rating}/10)
                                 </span>
                               </div>
                             );
@@ -794,7 +834,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                           return (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-                                {isRatingThisTrack && <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent-lime)' }} />}
+                                {isRatingThisTrack && <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent-lime)', flexShrink: 0 }} />}
                                 Rate Song (1-10)
                               </span>
                               <select
@@ -815,7 +855,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                                   padding: '0.35rem 0.5rem',
                                   cursor: (!isLoggedIn || isRatingThisTrack) ? 'not-allowed' : 'pointer',
                                   opacity: (!isLoggedIn || isRatingThisTrack) ? 0.5 : 1,
-                                  width: '100%'
+                                  width: '100%',
+                                  minHeight: '44px'
                                 }}
                               >
                                 <option value="" disabled>
@@ -835,14 +876,16 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '0.75rem', position: 'relative' }}>
                       <button
                         className={`btn-neo ${isSavedAnywhere ? 'btn-neo-lime' : 'btn-neo-cyan'}`}
-                        style={{ width: '100%', fontSize: '0.85rem', justifyContent: 'space-between' }}
+                        style={{ width: '100%', fontSize: '0.85rem', justifyContent: 'space-between', minHeight: '44px' }}
                         onClick={() => setOpenDropdownTrackId(isDropdownOpen ? null : track.id)}
                       >
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          {isSavedAnywhere ? <Check size={16} /> : <Bookmark size={16} />}
-                          {isSavedAnywhere ? `SAVED IN ${savedInPlaylists.length} PLAYLIST${savedInPlaylists.length > 1 ? 'S' : ''}` : 'ADD TO PLAYLIST'}
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {isSavedAnywhere ? <Check size={16} style={{ flexShrink: 0 }} /> : <Bookmark size={16} style={{ flexShrink: 0 }} />}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {isSavedAnywhere ? `SAVED IN ${savedInPlaylists.length} PLAYLIST${savedInPlaylists.length > 1 ? 'S' : ''}` : 'ADD TO PLAYLIST'}
+                          </span>
                         </span>
-                        <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                        <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
                       </button>
 
                       {/* Playlist Checkbox Popover */}
@@ -867,7 +910,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                             </span>
                             <button
                               onClick={() => setOpenDropdownTrackId(null)}
-                              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 800 }}
+                              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 800, minHeight: '44px', minWidth: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                             >
                               ✕ CLOSE
                             </button>
@@ -895,7 +938,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                                     fontFamily: 'var(--font-mono)',
                                     fontSize: '0.8rem',
                                     fontWeight: 700,
-                                    userSelect: 'none'
+                                    userSelect: 'none',
+                                    minHeight: '44px',
+                                    gap: '0.5rem',
+                                    minWidth: 0
                                   }}
                                   onClick={() => {
                                     if (!isProcessing) {
@@ -903,20 +949,22 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                                     }
                                   }}
                                 >
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0, flex: 1, overflow: 'hidden' }}>
                                     {isProcessing ? (
-                                      <Loader2 size={14} className="animate-spin" style={{ color: inThisPlaylist ? '#FFF' : 'var(--accent-lime)' }} />
+                                      <Loader2 size={14} className="animate-spin" style={{ color: inThisPlaylist ? '#FFF' : 'var(--accent-lime)', flexShrink: 0 }} />
                                     ) : (
                                       <input
                                         type="checkbox"
                                         checked={inThisPlaylist}
                                         onChange={() => { }} // Controlled by outer div click
-                                        style={{ accentColor: '#FFFFFF', cursor: 'pointer' }}
+                                        style={{ accentColor: '#FFFFFF', cursor: 'pointer', flexShrink: 0 }}
                                       />
                                     )}
-                                    {pl.name}
+                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {pl.name}
+                                    </span>
                                   </span>
-                                  <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>
+                                  <span style={{ fontSize: '0.7rem', opacity: 0.8, flexShrink: 0 }}>
                                     ({pl.tracks.length})
                                   </span>
                                 </div>
@@ -928,10 +976,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                           {!isCreatingInline ? (
                             <button
                               className="btn-neo btn-neo-secondary"
-                              style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', justifyContent: 'center', width: '100%', marginTop: '0.2rem' }}
+                              style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', justifyContent: 'center', width: '100%', marginTop: '0.2rem', minHeight: '44px' }}
                               onClick={() => setIsCreatingInline(true)}
                             >
-                              <Plus size={14} /> CREATE NEW PLAYLIST
+                              <Plus size={14} style={{ flexShrink: 0 }} /> CREATE NEW PLAYLIST
                             </button>
                           ) : (
                             <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.2rem' }}>
@@ -941,7 +989,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                                 value={newPlaylistName}
                                 onChange={(e) => setNewPlaylistName(e.target.value)}
                                 className="input-neo"
-                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', flex: 1 }}
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', flex: 1, minWidth: 0, minHeight: '44px' }}
                                 autoFocus
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') handleCreateAndAdd(track);
@@ -949,7 +997,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                               />
                               <button
                                 className="btn-neo btn-neo-lime"
-                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', minHeight: '44px', flexShrink: 0 }}
                                 onClick={() => handleCreateAndAdd(track)}
                               >
                                 ADD

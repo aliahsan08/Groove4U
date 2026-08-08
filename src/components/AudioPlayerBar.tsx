@@ -133,22 +133,27 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
         <button
           className="btn-neo"
           style={{
+            minWidth: '44px',
+            minHeight: '44px',
             padding: '0.45rem',
             backgroundColor: isPlaying ? 'var(--accent-red)' : 'var(--accent-lime)',
             color: '#000',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}
           onClick={() => onTogglePlay(currentTrack)}
           title={isPlaying ? 'Pause' : 'Play'}
         >
-          {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+          {isPlaying ? <Pause size={18} style={{ flexShrink: 0 }} /> : <Play size={18} style={{ flexShrink: 0 }} />}
         </button>
 
         <button
           style={{
+            minWidth: '44px',
+            minHeight: '44px',
             background: 'none',
             border: 'none',
             color: 'var(--text-muted)',
@@ -156,12 +161,13 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
             padding: '0.25rem',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}
           onClick={onClose}
           title="Close player"
         >
-          <X size={18} />
+          <X size={18} style={{ flexShrink: 0 }} />
         </button>
       </div>
     </div>

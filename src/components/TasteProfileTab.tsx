@@ -363,20 +363,21 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                   justifyContent: 'space-between',
                   gap: '1rem',
                   backgroundColor: 'var(--bg-secondary)',
-                  padding: '1.25rem'
+                  padding: '1.25rem',
+                  minWidth: 0
                 }}
               >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <span className="badge-neo badge-lime" style={{ fontSize: '0.75rem' }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span className="badge-neo badge-lime" style={{ fontSize: '0.75rem', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
                       RATING: {item.rating} / 10
                     </span>
                     <button
                       onClick={() => onDeleteTasteItem(item.id)}
-                      style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                       title="Delete song rating"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={18} style={{ flexShrink: 0 }} />
                     </button>
                   </div>
 
@@ -398,7 +399,8 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        flexShrink: 0
                       }}
                       onClick={() => setArtworkModalTrack({ artist: item.artist, title: item.title, coverUrl: item.coverUrl })}
                       title="Click to view artwork"
@@ -443,10 +445,16 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                             gap: '0.35rem',
                             boxShadow: '2px 2px 0px #000000',
                             zIndex: 3,
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            maxWidth: 'calc(100% - 24px)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minHeight: '44px',
+                            flexShrink: 0
                           }}
                         >
-                          <ImageIcon size={14} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
+                          <ImageIcon size={14} style={{ color: 'var(--accent-lime)', flexShrink: 0 }} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>VIEW ARTWORK</span>
                         </button>
 
                         {/* Audio Preview Trigger Button */}
@@ -469,18 +477,26 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                             alignItems: 'center',
                             gap: '0.4rem',
                             boxShadow: 'var(--shadow-sm)',
-                            zIndex: 2
+                            zIndex: 2,
+                            maxWidth: 'calc(100% - 24px)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minHeight: '44px',
+                            flexShrink: 0
                           }}
                         >
-                          {isPlayingThis ? <Pause size={16} /> : <Play size={16} />}
-                          {isPlayingThis ? 'PAUSE PREVIEW' : 'PLAY PREVIEW'}
+                          {isPlayingThis ? <Pause size={16} style={{ flexShrink: 0 }} /> : <Play size={16} style={{ flexShrink: 0 }} />}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {isPlayingThis ? 'PAUSE PREVIEW' : 'PLAY PREVIEW'}
+                          </span>
                         </button>
                       </div>
                     );
                   })()}
 
                   {/* Track Title & Artist Name with Smart Marquee */}
-                  <div style={{ marginBottom: '0.4rem' }}>
+                  <div style={{ marginBottom: '0.4rem', minWidth: 0, overflow: 'hidden' }}>
                     <MarqueeText
                       text={item.title}
                       style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-main)' }}
@@ -504,15 +520,17 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '0.4rem',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      minHeight: '44px',
+                      flexShrink: 0
                     }}
                     onClick={() => setArtworkModalTrack({ artist: item.artist, title: item.title, coverUrl: item.coverUrl })}
                   >
-                    <ImageIcon size={16} /> VIEW ARTWORK
+                    <ImageIcon size={16} style={{ flexShrink: 0 }} /> VIEW ARTWORK
                   </button>
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)', flexShrink: 0 }}>
                       CHANGE RATING:
                     </span>
                     <select
@@ -525,7 +543,8 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         color: 'var(--accent-lime)',
                         border: '2px solid var(--border-color)',
                         padding: '0.25rem 0.5rem',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        minHeight: '44px'
                       }}
                     >
                       {[1,2,3,4,5,6,7,8,9,10].map(r => (
@@ -948,17 +967,20 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                                     color: isPlayingThis ? '#FFFFFF' : '#000000',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '0.3rem'
+                                    gap: '0.3rem',
+                                    minHeight: '44px',
+                                    flexShrink: 0,
+                                    justifyContent: 'center'
                                   }}
                                   onClick={() => handleTogglePlayTaste(item.artist, item.title, item.id, item.genre, item.coverUrl)}
                                   disabled={loadingPreviewId === item.id}
                                 >
                                   {loadingPreviewId === item.id ? (
-                                    <Loader2 size={13} className="animate-spin" />
+                                    <Loader2 size={13} className="animate-spin" style={{ flexShrink: 0 }} />
                                   ) : isPlayingThis ? (
-                                    <><Pause size={13} /> PAUSE</>
+                                    <><Pause size={13} style={{ flexShrink: 0 }} /> PAUSE</>
                                   ) : (
-                                    <><Play size={13} /> PLAY</>
+                                    <><Play size={13} style={{ flexShrink: 0 }} /> PLAY</>
                                   )}
                                 </button>
 
@@ -972,11 +994,14 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                                     border: '2px solid #FFFFFF',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '0.3rem'
+                                    gap: '0.3rem',
+                                    minHeight: '44px',
+                                    flexShrink: 0,
+                                    justifyContent: 'center'
                                   }}
                                   onClick={() => setArtworkModalTrack({ artist: item.artist, title: item.title, coverUrl: coverUrl })}
                                 >
-                                  <ImageIcon size={13} style={{ color: 'var(--accent-lime)' }} /> VIEW ARTWORK
+                                  <ImageIcon size={13} style={{ color: 'var(--accent-lime)', flexShrink: 0 }} /> VIEW ARTWORK
                                 </button>
                               </>
                             );
@@ -984,8 +1009,8 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         </div>
 
                         <div className="taste-actions-middle">
-                          <div className="taste-rating-dropdown" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <Star size={16} style={{ color: 'var(--accent-lime)', fill: 'var(--accent-lime)' }} />
+                          <div className="taste-rating-dropdown" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+                            <Star size={16} style={{ color: 'var(--accent-lime)', fill: 'var(--accent-lime)', flexShrink: 0 }} />
                             <select
                               value={item.rating}
                               onChange={e => onUpdateRating(item.id, parseInt(e.target.value))}
@@ -996,7 +1021,8 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                                 color: 'var(--accent-lime)',
                                 border: '1px solid var(--border-color)',
                                 padding: '0.2rem 0.4rem',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                minHeight: '44px'
                               }}
                             >
                               {[1,2,3,4,5,6,7,8,9,10].map(r => (
@@ -1009,10 +1035,10 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
                         <div className="taste-actions-right">
                           <button
                             onClick={() => onDeleteTasteItem(item.id)}
-                            style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem' }}
+                            style={{ background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', padding: '0.2rem', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                             title="Delete song rating"
                           >
-                            <Trash2 size={18} />
+                            <Trash2 size={18} style={{ flexShrink: 0 }} />
                           </button>
                         </div>
                       </div>

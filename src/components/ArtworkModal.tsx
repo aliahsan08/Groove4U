@@ -128,7 +128,7 @@ export const ArtworkModal: React.FC<ArtworkModalProps> = ({
         margin: 'auto'
       }} onClick={(e) => e.stopPropagation()}>
         {/* Top Header Row with Close Button */}
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '0.25rem' }}>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '0.25rem', flexShrink: 0 }}>
           <button
             onClick={onClose}
             style={{
@@ -141,23 +141,29 @@ export const ArtworkModal: React.FC<ArtworkModalProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '2px 2px 0px #FFFFFF'
+              boxShadow: '2px 2px 0px #FFFFFF',
+              minWidth: '44px',
+              minHeight: '44px',
+              flexShrink: 0
             }}
             title="Close Modal"
           >
-            <X size={20} />
+            <X size={20} style={{ flexShrink: 0 }} />
           </button>
         </div>
 
         {/* Track Title & Artist (Centered on Next Line) */}
-        <div style={{ textAlign: 'center', marginBottom: '1.25rem', width: '100%' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.25rem', width: '100%', minWidth: 0, overflow: 'hidden' }}>
           <h2 style={{
             fontFamily: 'var(--font-display)',
             fontSize: '1.5rem',
             fontWeight: 900,
             margin: '0 0 0.25rem 0',
             color: '#FFFFFF',
-            lineHeight: 1.2
+            lineHeight: 1.2,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
           }}>
             {title}
           </h2>
@@ -166,7 +172,10 @@ export const ArtworkModal: React.FC<ArtworkModalProps> = ({
             fontSize: '0.9rem',
             color: 'var(--accent-lime, #76B900)',
             margin: 0,
-            fontWeight: 700
+            fontWeight: 700,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
           }}>
             {artist}
           </p>
@@ -187,7 +196,8 @@ export const ArtworkModal: React.FC<ArtworkModalProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: '1.25rem'
+          marginBottom: '1.25rem',
+          flexShrink: 0
         }}>
           {currentArtwork ? (
             <>
@@ -237,17 +247,20 @@ export const ArtworkModal: React.FC<ArtworkModalProps> = ({
                 color: 'var(--accent-lime, #76B900)',
                 border: '2px solid #FFFFFF',
                 borderRadius: '50%',
-                width: '38px',
-                height: '38px',
+                width: '44px',
+                height: '44px',
+                minWidth: '44px',
+                minHeight: '44px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                boxShadow: '2px 2px 0px #000000'
+                boxShadow: '2px 2px 0px #000000',
+                flexShrink: 0
               }}
               title="Previous Artwork"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={24} style={{ flexShrink: 0 }} />
             </button>
           )}
 
@@ -264,17 +277,20 @@ export const ArtworkModal: React.FC<ArtworkModalProps> = ({
                 color: 'var(--accent-lime, #76B900)',
                 border: '2px solid #FFFFFF',
                 borderRadius: '50%',
-                width: '38px',
-                height: '38px',
+                width: '44px',
+                height: '44px',
+                minWidth: '44px',
+                minHeight: '44px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                boxShadow: '2px 2px 0px #000000'
+                boxShadow: '2px 2px 0px #000000',
+                flexShrink: 0
               }}
               title="Next Artwork"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={24} style={{ flexShrink: 0 }} />
             </button>
           )}
 

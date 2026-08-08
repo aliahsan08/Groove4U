@@ -174,7 +174,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
             <button
               type="button"
               className={`btn-neo ${mode === 'login' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
-              style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
+              style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem', minHeight: '44px', flexShrink: 0 }}
               onClick={() => setMode('login')}
             >
               LOG IN
@@ -182,7 +182,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
             <button
               type="button"
               className={`btn-neo ${mode === 'signup' ? 'btn-neo-lime' : 'btn-neo-secondary'}`}
-              style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}
+              style={{ flex: 1, justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem', minHeight: '44px', flexShrink: 0 }}
               onClick={() => setMode('signup')}
             >
               SIGN UP
@@ -203,7 +203,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
               alignItems: 'center',
               gap: '0.5rem'
             }}>
-              <ShieldAlert size={16} />
+              <ShieldAlert size={16} style={{ flexShrink: 0 }} />
               <div>{errorMessage}</div>
             </div>
           )}
@@ -222,6 +222,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
                   onChange={e => setName(e.target.value)}
                   placeholder="Victoria Legrand"
                   required
+                  style={{ minHeight: '44px' }}
                 />
               </div>
             )}
@@ -237,6 +238,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
                 onChange={e => setEmail(e.target.value)}
                 placeholder="victoria@groove4u.app"
                 required
+                style={{ minHeight: '44px' }}
               />
             </div>
 
@@ -252,6 +254,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
                 placeholder="••••••••••••"
                 minLength={6}
                 required
+                style={{ minHeight: '44px' }}
               />
             </div>
 
@@ -268,6 +271,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
                     onChange={e => setCountry(e.target.value)}
                     placeholder="Pakistan"
                     required
+                    style={{ minHeight: '44px' }}
                   />
                 </div>
 
@@ -285,6 +289,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
                       onChange={e => setAge(e.target.value)}
                       placeholder="24"
                       required
+                      style={{ minHeight: '44px' }}
                     />
                   </div>
                   <div>
@@ -295,7 +300,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
                       className="input-neo"
                       value={gender}
                       onChange={e => setGender(e.target.value)}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: 'pointer', minHeight: '44px' }}
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -310,7 +315,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
             <button
               type="submit"
               className="btn-neo btn-neo-lime"
-              style={{ padding: '0.9rem', fontSize: '1rem', justifyContent: 'center', marginTop: '0.5rem' }}
+              style={{ padding: '0.9rem', fontSize: '1rem', justifyContent: 'center', marginTop: '0.5rem', minHeight: '44px', flexShrink: 0 }}
               disabled={isLoading}
             >
               {isLoading ? 'AUTHENTICATING...' : (mode === 'login' ? 'LOG IN' : 'CREATE ACCOUNT')}
@@ -331,10 +336,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess, isDarkMode, o
               justifyContent: 'center',
               display: 'inline-flex',
               boxShadow: '0 4px 12px rgba(0, 229, 255, 0.25)',
-              gap: '0.4rem'
+              gap: '0.4rem',
+              minHeight: '44px',
+              flexShrink: 0
             }}
           >
-            <Headphones size={15} /> Continue as Guest
+            <Headphones size={15} style={{ flexShrink: 0 }} /> Continue as Guest
           </button>
         </div>
 

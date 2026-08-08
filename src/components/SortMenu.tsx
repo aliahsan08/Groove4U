@@ -37,9 +37,13 @@ export const SortMenu: React.FC<SortMenuProps> = ({ value, onChange, options }) 
         title={`Sort options (${currentOption?.label || 'Sort'})`}
         style={{
           padding: '0 0.75rem',
-          height: '42px',
+          height: '44px',
+          minHeight: '44px',
+          minWidth: '44px',
+          flexShrink: 0,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           gap: '0.4rem',
           backgroundColor: 'var(--bg-secondary)',
           color: 'var(--text-main)',
@@ -47,7 +51,7 @@ export const SortMenu: React.FC<SortMenuProps> = ({ value, onChange, options }) 
           cursor: 'pointer'
         }}
       >
-        <ArrowUpDown size={18} />
+        <ArrowUpDown size={18} style={{ flexShrink: 0 }} />
       </button>
 
       {isOpen && (
@@ -84,6 +88,7 @@ export const SortMenu: React.FC<SortMenuProps> = ({ value, onChange, options }) 
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   gap: '0.5rem',
+                  minHeight: '44px',
                   transition: 'background 0.15s'
                 }}
                 onMouseEnter={e => {
@@ -93,7 +98,7 @@ export const SortMenu: React.FC<SortMenuProps> = ({ value, onChange, options }) 
                   if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
-                <span>{opt.label}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opt.label}</span>
                 {isSelected && <Check size={14} style={{ color: 'var(--accent-lime)', flexShrink: 0 }} />}
               </div>
             );
