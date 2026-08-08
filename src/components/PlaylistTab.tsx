@@ -310,7 +310,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>MULTIPLE PLAYLIST LIBRARY</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
             MY <span style={{ color: 'var(--accent-lime)' }}>PLAYLISTS</span>
           </h2>
         </div>
@@ -469,7 +469,7 @@ export const PlaylistTab: React.FC<PlaylistTabProps> = ({
                   </div>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, margin: 0 }}>
+                    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, margin: 0, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                       {activePlaylist.name} <span style={{ color: 'var(--accent-lime)' }}>({activeTracks.length})</span>
                     </h2>
                     <button

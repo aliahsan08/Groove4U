@@ -147,7 +147,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>
               RECOMMENDATION ENGINE
             </span>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.75rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1.05, marginTop: '0.85rem' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.75rem)', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1.05, marginTop: '0.85rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
               <span style={{ color: 'var(--accent-lime)' }}>RECOMMEND TRACKS</span>
             </h2>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.4rem', margin: '0.4rem 0 0 0' }}>
@@ -194,18 +194,18 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* Top Curated Selections Header */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', fontWeight: 800, textTransform: 'uppercase', margin: 0, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
           Top Curated Selections
         </h3>
       </div>
 
       {/* Recommendations Cards Container */}
       {isGenerating ? (
-        <div className="tactile-card" style={{ padding: '4rem 2rem', textAlign: 'center', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.25rem', border: '3px solid var(--border-color)', boxShadow: '8px 8px 0px var(--accent-lime)' }}>
+        <div className="tactile-card" style={{ padding: '3rem 1.25rem', textAlign: 'center', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.25rem', border: '3px solid var(--border-color)', boxShadow: '8px 8px 0px var(--accent-lime)', minWidth: 0, maxWidth: '100%' }}>
           <div style={{ position: 'relative', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Sparkles size={56} style={{ color: 'var(--accent-lime)' }} className="rotating-star" />
           </div>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-lime)', margin: 0, letterSpacing: '-0.02em' }}>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1rem, 4.5vw, 1.8rem)', fontWeight: 900, color: 'var(--accent-lime)', margin: 0, letterSpacing: '-0.02em', wordBreak: 'break-word', overflowWrap: 'anywhere', hyphens: 'auto', maxWidth: '100%', lineHeight: 1.2 }}>
             GENERATING RECOMMENDATIONS...
           </h3>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, maxWidth: '420px' }}>

@@ -295,7 +295,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
             <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>DEDICATED VIEW</span>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
               ALL RATED SONGS <span style={{ color: 'var(--accent-lime)' }}>({tasteItems.length})</span>
             </h2>
           </div>
@@ -628,7 +628,7 @@ export const TasteProfileTab: React.FC<TasteProfileTabProps> = ({
     <div style={{ padding: '2.5rem 1.5rem', maxWidth: '1350px', margin: '0 auto' }}>
       <div style={{ marginBottom: '2rem' }}>
         <span className="badge-neo badge-lime" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>ALGORITHM VECTOR CALIBRATION</span>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem' }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1, marginTop: '0.85rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
           TASTE PROFILE <span style={{ color: 'var(--accent-lime)' }}>DECK</span>
         </h2>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
